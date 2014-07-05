@@ -4,7 +4,7 @@
 <head>
 <?php require '_meta.php' ?>
 <?php require '_style.php' ?>
-<title>Nigel Small Technology</title>
+<title>Nigel Small</title>
 </head>
 
 <body>
@@ -14,9 +14,7 @@
 
 <?php require '_twitter.php' ?>
 
-<p>I am a Linux software engineer and analyst specialising in Python, JavaScript, PostgreSQL and <a href="http://neo4j.org/">Neo4j</a>. I own and maintain a number of open source projects and am an <a href="http://www.neo4j.org/participate/contributors">active member</a> of the Neo4j community.</p>
-
-<h2>Projects</h2>
+<h2 style="border-top-width:0;padding-top:0">Projects</h2>
 
 <ul>
   <li><a href="geoff">geoff</a></li>

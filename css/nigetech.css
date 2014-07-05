@@ -1,18 +1,19 @@
 
 /* Root element */
 html {
-    font-size: 13pt;
-    line-height: 180%;
+	background-color: #F4F4F0;
+    font-size: 15px;
+    line-height: 160%;
     overflow-y: scroll;
 }
 
 /* Sections */
 body {
     position: relative;
-    font-family: /*"Andika",*/ "Trebuchet MS", sans-serif;
+    font-family: "Verdana", sans-serif;
     width: 960px;
     margin: 0 auto;
-    color: #333;
+	color: #444440;
 }
 section {}
 nav {}
@@ -24,19 +25,19 @@ aside {
     right: 0;
     color: #fff;
     background: rgb(76,136,200) url('../img/aside_bg.png') no-repeat left top;
-    padding: 6px 12px 6px 35px;
+    padding: 11px 12px 11px 35px;
 }
 h1 {
-    font-size: 200%;
+    font: bold 220% "Courier New";
 }
 h2 {
-    font-size: 160%;
+    font: bold 180% "Courier New";
     border-top: 4px solid #DDD;
     margin-top: .75em;
     padding-top: .75em;
 }
 h3 {
-    font-size: 120%;
+    font: bold 140% "Courier New";
 }
 h4 {}
 h5 {}
@@ -49,6 +50,7 @@ header {
 footer {
     position: relative;
     text-align: center;
+    margin-top: 1.5em;
     border-top: 6px solid #DDD;
     padding: 24px 0 32px 0;
 }
@@ -68,8 +70,7 @@ hr {
     background-color: #DDD;
 }
 pre {
-    font-family: "Ubuntu Mono", "Andale Mono", monospace;
-    font-size: 13px;
+    font: 12px "Courier New", monospace;
     background-color: #222;
     color: #fff;
     line-height: 140%;
@@ -89,9 +90,8 @@ div {}
 
 /* Text-level semantics */
 a {
-    color: rgb(76,136,200);
+    color: rgb(13,136,76);
     text-decoration: none;
-    text-shadow: 0 0 2px #99C9FF;
 }
 a:hover {
     text-decoration: underline;
@@ -107,7 +107,7 @@ abbr {}
 data {}
 time {}
 code {
-    font-family: "Ubuntu Mono", monospace;
+    font-family: "Courier New", monospace;
 }
 var {}
 samp {}
@@ -186,6 +186,13 @@ menu {}
 aside a {
     color: #fff;
     /*text-shadow: 0 0 2px #ccc;*/
+}
+.title {
+    font: 44px "Courier New";
+    font-weight: bold;
+}
+.title a:hover {
+    text-decoration: none;
 }
 .contact {
     position: absolute;
