@@ -78,6 +78,7 @@ pre {
     padding: 6px 8px 6px 8px;
     overflow-x: auto;
 }
+pre code { background-color:inherit}
 blockquote {}
 ol {}
 ul {}
