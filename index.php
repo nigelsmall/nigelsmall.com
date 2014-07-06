@@ -16,46 +16,68 @@
 
 <h2 style="border-top-width:0;padding-top:0">Projects</h2>
 
+<h3>Graph Data</h3>
 <ul>
-  <li><a href="geoff">geoff</a></li>
-  <li><a href="httpstream">httpstream</a></li>
-  <li><a href="load2neo">load2neo</a></li>
-  <li><a href="py2neo">py2neo</a></li>
-  <li><a href="syntaq">syntaq</a></li>
+  <li><a href="py2neo">Py2neo</a></li>
+  <li><a href="geoff">Geoff</a></li>
+  <li><a href="load2neo">Load2neo</a></li>
 </ul>
 
-<h2>Blogs</h2>
-
+<h3>Networking</h3>
 <ul>
-  <li><a href="http://blog.safaribooksonline.com/2013/11/22/neo4j-2-0-a-giant-leap-for-graphkind/">2013-11-22 - Neo4j 2.0: A Giant Leap For Graphkind</a></li>
-  <li><a href="http://blog.neo4j.org/2013/09/py2neo-16.html">2013-09-27 - Py2neo 1.6</a></li>
-  <li><a href="http://blog.safaribooksonline.com/2013/08/07/managing-uniqueness-with-py2neo/">2013-08-07 - Managing Neo4j Uniqueness with Py2neo</a></li>
-  <li><a href="http://blog.safaribooksonline.com/2013/07/23/using-neo4j-from-python/">2013-07-23 - Using Neo4j from Python</a></li>
+  <li><a href="httpstream">HTTPStream</a></li>
+  <li><a href="urimagic">URIMagic</a></li>
 </ul>
 
-<h2>Slides</h2>
+<h3>Text</h3>
+<ul>
+  <li><a href="syntaq">Syntaq</a></li>
+</ul>
+
+<h2>Blogs & Slides</h2>
+
+<style>.notes{color:#747470;font-size:88%;font-style:italic}</style>
 
 <ul>
 
   <li>
-    <a href="http://www.slideshare.net/nigelsmall/py2neo-16">Py2neo 1.6</a><br>
-    &nbsp;<em>Neo4j Graph Café - London - November 2013</em>
-
-    <!--br><br>&nbsp;<iframe src="http://www.slideshare.net/slideshow/embed_code/28831610" width="427" height="356" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC;border-width:1px 1px 0;margin-bottom:5px" allowfullscreen> </iframe-->
+    <a href="http://mneedham.github.io/py2neo-lightning.html#/">Making Python and Neo4j play nicely together</a>
+    <div class="notes">Python Dojo, London // 3 July 2014 // with <a href="https://twitter.com/markhneedham">Mark Needham</a></div>
   </li>
 
   <li>
-    <a href="http://www.slideshare.net/nigelsmall/neotool">Neotool (using py2neo from the command line)</a><br>
-    &nbsp;<em>Neo4j Graph Café - London - August 2013</em>
-
-    <!--br><br>&nbsp;<iframe src="http://www.slideshare.net/slideshow/embed_code/25698500" width="427" height="356" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC;border-width:1px 1px 0;margin-bottom:20px" allowfullscreen> </iframe-->
+    <a href="http://www.slideshare.net/nigelsmall/py2neo-16">Py2neo 1.6</a>
+    <div class="notes">Neo4j Graph Café, London // 27 November 2013</div>
   </li>
 
   <li>
-    <a href="http://www.slideshare.net/nigelsmall/introduction-to-py2neo">Introducing Py2neo</a><br>
-    &nbsp;<em>Neo4j Meetup - London - July 2012</em>
+    <a href="http://blog.safaribooksonline.com/2013/11/22/neo4j-2-0-a-giant-leap-for-graphkind/">Neo4j 2.0: A Giant Leap For Graphkind</a>
+    <div class="notes">Safari Books Online // 22 November 2013</div>
+  </li>
 
-    <!--br><br>&nbsp;<iframe src="http://www.slideshare.net/slideshow/embed_code/13491461" width="427" height="356" frameborder="0" marginwidth="0" marginheight="0" scrolling="no" style="border:1px solid #CCC;border-width:1px 1px 0;margin-bottom:20px" allowfullscreen> </iframe-->
+  <li>
+    <a href="http://blog.neo4j.org/2013/09/py2neo-16.html">Py2neo 1.6</a>
+    <div class="notes">neo4j.org // 27 September 2013</div>
+  </li>
+
+  <li>
+    <a href="http://blog.safaribooksonline.com/2013/08/07/managing-uniqueness-with-py2neo/">Managing Neo4j Uniqueness with Py2neo</a>
+    <div class="notes">Safari Books Online // 7 August 2013</div>
+  </li>
+
+  <li>
+    <a href="http://www.slideshare.net/nigelsmall/neotool">Neotool (using py2neo from the command line)</a>
+    <div class="notes">Neo4j Graph Café, London // 29 August 2013</div>
+  </li>
+
+  <li>
+    <a href="http://blog.safaribooksonline.com/2013/07/23/using-neo4j-from-python/">Using Neo4j from Python</a>
+    <div class="notes">Safari Books Online // 23 July 2013</div>
+  </li>
+
+  <li>
+    <a href="http://www.slideshare.net/nigelsmall/introduction-to-py2neo">Introducing Py2neo</a>
+    <div class="notes">Neo4j Meetup, London // 27 June 2012</div>
   </li>
 
 </ul>
