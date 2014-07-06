@@ -12,6 +12,7 @@
 <?php require '_header.php' ?>
 <main>
 
+<aside class="logo"><img src="/img/200/py2neo.png"></aside>
 <h1>Py2neo</h1>
 
 <p>Py2neo is a simple and pragmatic Python library that provides access to the popular graph database Neo4j via its RESTful web service interface.</p>

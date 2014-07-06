@@ -12,6 +12,7 @@
 <?php require '../_header.php' ?>
 <main>
 
+<aside class="logo"><img src="/img/200/zerograph.png"></aside>
 <h1>Zerograph</h1>
 
 <p>Zerograph is an alternative server container for the leading graph database
