@@ -29,7 +29,7 @@ table.palette .yellow {background-color:yellow}
     <td></td>
     <td class="icon"><a href="http://python.org/"><img border=0 src="/img/69/python.png"></a></td>
     <td></td>
-    <td class="icon"></td>
+    <td class="icon"><a href="https://www.debian.org/"><img src="/img/69/debian.png"></a></td>
     <td></td>
     <td class="icon"></td>
     <td></td>
