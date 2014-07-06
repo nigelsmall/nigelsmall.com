@@ -4,7 +4,7 @@
 <head>
 <?php require '_meta.php' ?>
 <?php require '_style.php' ?>
-<title>URIMagic - Nigel Small Technology</title>
+<title>URIMagic - Nigel Small</title>
 </head>
 
 <body>

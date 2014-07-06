@@ -4,7 +4,7 @@
 <head>
 <?php require '_meta.php' ?>
 <?php require '_style.php' ?>
-<title>HTTPStream - Nigel Small Technology</title>
+<title>HTTPStream - Nigel Small</title>
 </head>
 
 <body>

@@ -4,7 +4,7 @@
 <head>
 <?php require '../_meta.php' ?>
 <?php require '../_style.php' ?>
-<title>Zerograph - Nigel Small Technology</title>
+<title>Zerograph - Nigel Small</title>
 </head>
 
 <body>

@@ -109,6 +109,7 @@ data {}
 time {}
 code {
     font-family: "Courier New", monospace;
+    background-color: #ECECE8;
 }
 var {}
 samp {}
@@ -184,6 +185,9 @@ menuitem {}
 menu {}
 
 /* */
+main.wide {
+    width: 960px;
+}
 aside a {
     color: #fff;
     /*text-shadow: 0 0 2px #ccc;*/
