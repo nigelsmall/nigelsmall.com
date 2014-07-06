@@ -5,7 +5,7 @@ table.iconic {border-collapse:collapse}
 table.iconic td {width:12px}
 table.iconic td.icon {background-color:transparent;width:69px;height:69px;}
 table.iconic a {text-decoration:none}
-table.iconic a img {border:0;margin:0;vertical-align:bottom;-moz-border-radius:5px;border-radius:5px;}
+table.iconic a img {border:0;margin:0;vertical-align:bottom;-moz-border-radius:5px;border-radius:5px;-moz-box-shadow:2px 2px 5px #848480;-webkit-box-shadow:2px 2px 5px #848480;box-shadow:2px 2px 5px #848480}
 
 table.palette {border-collapse:collapse;margin:0}
 table.palette td {width:20px;height:6px}
