@@ -1,3 +1,4 @@
 <?php
-print "${_SERVER['REMOTE_ADDR']}\n";
+header('Content-Type: text/plain');
+print $_SERVER['REMOTE_ADDR'];
 ?>
