@@ -25,11 +25,11 @@ table.palette .yellow {background-color:yellow}
 
 <table class="iconic" cellpadding="0" cellspacing="0">
   <tr>
-    <td class="icon"><a href="http://neo4j.org/"><img border=0 src="/img/69/neo4j.png"></a></td>
+    <td class="icon"><a href="http://neo4j.org"><img border=0 src="/img/69/neo4j.png"></a></td>
     <td></td>
-    <td class="icon"><a href="http://python.org/"><img border=0 src="/img/69/python.png"></a></td>
+    <td class="icon"><a href="http://python.org"><img border=0 src="/img/69/python.png"></a></td>
     <td></td>
-    <td class="icon"><a href="https://www.debian.org/"><img src="/img/69/debian.png"></a></td>
+    <td class="icon"><a href="http://debian.org"><img src="/img/69/debian.png"></a></td>
     <td></td>
     <td class="icon"></td>
     <td></td>
@@ -127,7 +127,7 @@ a h6 {color:#444440} a:hover h6 {color:rgb(13,136,76)}
     permalinkHeadings("h4");
     permalinkHeadings("h5");
     permalinkHeadings("h6");
-    
+
 }())
 </script>
 

@@ -2,8 +2,7 @@
 <html lang="en">
 
 <head>
-<?php require '_meta.php' ?>
-<?php require '_style.php' ?>
+<?php require '_head.php' ?>
 <title>Nigel Small</title>
 </head>
 
@@ -32,6 +31,7 @@
 
 <h3>Text</h3>
 <ul>
+  <li><a href="jsonstream">JSONStream</a></li>
   <li><a href="syntaq">Syntaq</a></li>
 </ul>
 
