@@ -2,9 +2,8 @@
 <html lang="en">
 
 <head>
-<?php require '_meta.php' ?>
-<?php require '_style.php' ?>
-<title>Syntaq - Nigel Small Technology</title>
+<?php require '_head.php' ?>
+<title>Syntaq - Nigel Small</title>
 </head>
 
 <body>

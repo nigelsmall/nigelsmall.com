@@ -2,9 +2,8 @@
 <html lang="en">
 
 <head>
-<?php require '_meta.php' ?>
-<?php require '_style.php' ?>
-<title>Load2neo - Nigel Small Technology</title>
+<?php require '_head.php' ?>
+<title>Load2neo - Nigel Small</title>
 </head>
 
 <body>

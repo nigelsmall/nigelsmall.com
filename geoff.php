@@ -2,9 +2,8 @@
 <html lang="en">
 
 <head>
-<?php require '_meta.php' ?>
-<?php require '_style.php' ?>
-<title>Geoff - Nigel Small Technology</title>
+<?php require '_head.php' ?>
+<title>Geoff - Nigel Small</title>
 </head>
 
 <body>
