@@ -1,3 +1,4 @@
 <?php
-print date('c') . "\n";
+header('Content-Type: text/plain');
+print date('c');
 ?>
