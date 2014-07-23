@@ -29,7 +29,7 @@
 
 <p>Further Note: Schema indexes are also <strong>only available for nodes</strong> whereas legacy indexes allowed relationships to be indexed as well. The use cases for relationship indexing were few and could generally be worked around by introducing extra nodes.</p>
 
-<h2>So what should I use?</h2>
+<h2>So which should I use?</h2>
 
 <p>If you are using Neo4j 2.0 or above and do not have to support legacy code from a pre-2.0 era, use only schema indexes and avoid legacy indexes. Conversely, if you are stuck with an earlier version of Neo4j and are unable to upgrade, you only have one type of index available to you anyway.</p>
 
