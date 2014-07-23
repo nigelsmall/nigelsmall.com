@@ -19,7 +19,9 @@
 
 <p>Prior to the release of Neo4j 2.0, legacy indexes were just called indexes. These were powered by <a href="http://lucene.apache.org/">Lucene</a> outside the graph and allowed nodes and relationships to be indexed under a <em>key:value</em> pair. From the perspective of the REST interface, <a href="http://docs.neo4j.org/chunked/stable/rest-api-indexes.html">most things called "index"</a> will still refer to these legacy indexes. Specifically with py2neo, <a href="http://nigelsmall.com/py2neo/indexes/">any operation that contains the word "index"</a> that is not part of the "schema" object, will refer to legacy indexes.</p>
 
-<p>Legacy indexes were generally used as pointers to start nodes for a query; they provided no ability to speed up queries.</p>
+<p>Legacy indexes also provide full text search capabilities. This is something not (yet) provided by schema indexes so is one of the few reasons for sticking with legacy indexes in Neo4j 2.0<a href="#thanks-luanne">*</a>.</small></p>
+
+<p>Note: Legacy indexes were generally used as pointers to start nodes for a query; they provided no ability to speed up queries.</p>
 
 <h2>Schema Indexes</h2>
 
@@ -33,9 +35,15 @@
 
 <p>If you are using Neo4j 2.0 or above and do not have to support legacy code from a pre-2.0 era, use only schema indexes and avoid legacy indexes. Conversely, if you are stuck with an earlier version of Neo4j and are unable to upgrade, you only have one type of index available to you anyway.</p>
 
+<p>If you need full text indexing, regardless of server version, you will need to use legacy indexes.</p>
+
 <p>The more complicated scenarios are those that involve a period of transition from one type of index to another. In these cases, make sure you are fully aware of the differences and try, wherever possible, to use either schema or legacy indexes but not both. Mixing the two will often lead to more confusion.</p>
 
 <p>And if in doubt, ask a question on the <a href="https://groups.google.com/forum/#!forum/neo4j">Neo4j mailing list</a>.</p>
+
+<hr>
+
+<p><small id="thanks-luanne" style="color:#888">* Hat tip to <a href="http://twitter.com/luannem">Luanne</a> for reminding me to include this!</small></p>
 
 </main>
 <?php require '../_footer.php' ?>
