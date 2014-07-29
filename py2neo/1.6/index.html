@@ -1,0 +1,171 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Py2neo &mdash; py2neo dev.dev.dev documentation</title>
+    
+    <link rel="stylesheet" href="_static/nige.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '',
+        VERSION:     'dev.dev.dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <link rel="top" title="py2neo dev.dev.dev documentation" href="#" />
+    <link rel="next" title="Requirements &amp; Installation" href="install/" /> 
+  </head>
+  <body>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="#">
+              <img class="logo" src="_static/py2neo.320x440.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Py2neo</a><ul>
+<li><a class="reference internal" href="#contents">Contents</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Next topic</h4>
+  <p class="topless"><a href="install/"
+                        title="next chapter">Requirements &amp; Installation</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+    <header>
+    <div class="title"><a href="/">Nigel Small</a></div>
+    <div class="contact">
+    <a href="http://twitter.com/neonige"><img src="_static/twitter_mark.png"></a>
+    <a href="http://github.com/nigelsmall"><img src="_static/github_mark.png"></a>
+    </div>
+    </header>
+    <main>
+        
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="py2neo">
+<h1>Py2neo<a class="headerlink" href="#py2neo" title="Permalink to this headline">¶</a></h1>
+<p>Py2neo is a simple and pragmatic Python library that provides access to the
+popular graph database Neo4j via its RESTful web service interface. With no
+external dependencies, installation is straightforward and getting started
+with coding is easy. The library is actively maintained on GitHub, regularly
+updated in the Python Package Index and is built uniquely for Neo4j in close
+association with its team and community.</p>
+<div class="section" id="contents">
+<h2>Contents<a class="headerlink" href="#contents" title="Permalink to this headline">¶</a></h2>
+<div class="toctree-wrapper compound">
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="install/">Requirements &amp; Installation</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="install/#requirements">Requirements</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install/#installation">Installation</a></li>
+<li class="toctree-l2"><a class="reference internal" href="install/#source-code">Source Code</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="fundamentals/">Fundamentals</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="fundamentals/#node-relationship-abstracts">Node &amp; Relationship Abstracts</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fundamentals/#referencing-nodes-within-the-same-batch">Referencing Nodes within the same Batch</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fundamentals/#node-relationship-ids">Node &amp; Relationship IDs</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fundamentals/#transactions">Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="fundamentals/#errors">Errors</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="graphs_nodes_relationships/">Graphs, Nodes &amp; Relationships</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="graphs_nodes_relationships/#graph">Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="graphs_nodes_relationships/#nodes-relationships">Nodes &amp; Relationships</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="paths/">Paths</a></li>
+<li class="toctree-l1"><a class="reference internal" href="schema/">Schema</a></li>
+<li class="toctree-l1"><a class="reference internal" href="indexes/">Indexes</a></li>
+<li class="toctree-l1"><a class="reference internal" href="batches/">Batches</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cypher/">Cypher</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cypher/#id2">Cypher Transactions</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cypher/#classic-cypher-execution">Classic Cypher Execution</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="ogm/">Object-Graph Mapping (OGM)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="calendar/">Date Modelling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="neotool/">Command Line Tool</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="neotool/#clearing-the-database">Clearing the Database</a></li>
+<li class="toctree-l2"><a class="reference internal" href="neotool/#cypher-execution">Cypher Execution</a></li>
+<li class="toctree-l2"><a class="reference internal" href="neotool/#inserting-merging-geoff-data">Inserting/Merging Geoff Data</a></li>
+<li class="toctree-l2"><a class="reference internal" href="neotool/#converting-xml-data-into-geoff">Converting XML Data into Geoff</a></li>
+<li class="toctree-l2"><a class="reference internal" href="neotool/#interactive-shell">Interactive Shell</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="deprecated_features/">Deprecated Features</a></li>
+<li class="toctree-l1"><a class="reference internal" href="cookbook/">Cookbook</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="cookbook/#creating-a-simple-graph">Creating a Simple Graph</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cookbook/#batch-insertion-using-index">Batch Insertion using Index</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cookbook/#default-uri">Default URI</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cookbook/#authentication">Authentication</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cookbook/#uri-rewriting">URI Rewriting</a></li>
+<li class="toctree-l2"><a class="reference internal" href="cookbook/#logging">Logging</a></li>
+</ul>
+</li>
+<li class="toctree-l1"><a class="reference internal" href="neomodel/">Working with Django: neomodel</a><ul>
+<li class="toctree-l2"><a class="reference internal" href="neomodel/#the-basics">The basics</a></li>
+<li class="toctree-l2"><a class="reference internal" href="neomodel/#traversals-experimental">Traversals - EXPERIMENTAL</a></li>
+<li class="toctree-l2"><a class="reference internal" href="neomodel/#category-nodes">Category nodes</a></li>
+<li class="toctree-l2"><a class="reference internal" href="neomodel/#cardinality">Cardinality</a></li>
+<li class="toctree-l2"><a class="reference internal" href="neomodel/#cypher-queries">Cypher queries</a></li>
+<li class="toctree-l2"><a class="reference internal" href="neomodel/#relating-to-many-node-types">Relating to many node types</a></li>
+<li class="toctree-l2"><a class="reference internal" href="neomodel/#batch-create">Batch create</a></li>
+<li class="toctree-l2"><a class="reference internal" href="neomodel/#hooks-and-signals">Hooks and Signals</a></li>
+<li class="toctree-l2"><a class="reference internal" href="neomodel/#indexing">Indexing</a></li>
+<li class="toctree-l2"><a class="reference internal" href="neomodel/#properties">Properties</a></li>
+</ul>
+</li>
+</ul>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer>
+        <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br>
+This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+    </footer>
+
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

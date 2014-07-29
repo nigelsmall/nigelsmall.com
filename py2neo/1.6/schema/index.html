@@ -1,0 +1,214 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Schema &mdash; py2neo dev.dev.dev documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nige.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'dev.dev.dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="py2neo dev.dev.dev documentation" href="../" />
+    <link rel="next" title="Indexes" href="../indexes/" />
+    <link rel="prev" title="Paths" href="../paths/" /> 
+  </head>
+  <body>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../">
+              <img class="logo" src="../_static/py2neo.320x440.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../paths/"
+                        title="previous chapter">Paths</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../indexes/"
+                        title="next chapter">Indexes</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+    <header>
+    <div class="title"><a href="/">Nigel Small</a></div>
+    <div class="contact">
+    <a href="http://twitter.com/neonige"><img src="../_static/twitter_mark.png"></a>
+    <a href="http://github.com/nigelsmall"><img src="../_static/github_mark.png"></a>
+    </div>
+    </header>
+    <main>
+        
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="schema">
+<h1>Schema<a class="headerlink" href="#schema" title="Permalink to this headline">¶</a></h1>
+<dl class="class">
+<dt id="py2neo.neo4j.Schema">
+<em class="property">class </em><tt class="descclassname">py2neo.neo4j.</tt><tt class="descname">Schema</tt><big>(</big><em>uri=None</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Schema" title="Permalink to this definition">¶</a></dt>
+<dd><dl class="method">
+<dt id="py2neo.neo4j.Schema.add_unique_constraint">
+<tt class="descname">add_unique_constraint</tt><big>(</big><em>label</em>, <em>property_key</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Schema.add_unique_constraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create an uniqueness constraint for a label.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>label</strong> &#8211; </li>
+<li><strong>property_key</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="py2neo.neo4j.Schema.create_index">
+<tt class="descname">create_index</tt><big>(</big><em>label</em>, <em>property_key</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Schema.create_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Index a property key for a label.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>label</strong> &#8211; </li>
+<li><strong>property_key</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="py2neo.neo4j.Schema.drop_index">
+<tt class="descname">drop_index</tt><big>(</big><em>label</em>, <em>property_key</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Schema.drop_index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove label index for a given property key.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>label</strong> &#8211; </li>
+<li><strong>property_key</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="py2neo.neo4j.Schema.get_indexed_property_keys">
+<tt class="descname">get_indexed_property_keys</tt><big>(</big><em>label</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Schema.get_indexed_property_keys" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch a list of indexed property keys for a label.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>label</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="py2neo.neo4j.Schema.get_unique_constraints">
+<tt class="descname">get_unique_constraints</tt><big>(</big><em>label</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Schema.get_unique_constraints" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch a list of uniqueness constraints for a label.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>label</strong> &#8211; </td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="py2neo.neo4j.Schema.remove_unique_constraint">
+<tt class="descname">remove_unique_constraint</tt><big>(</big><em>label</em>, <em>property_key</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Schema.remove_unique_constraint" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove uniqueness constraint for a given property key.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>label</strong> &#8211; </li>
+<li><strong>property_key</strong> &#8211; </li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer>
+        <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br>
+This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+    </footer>
+
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

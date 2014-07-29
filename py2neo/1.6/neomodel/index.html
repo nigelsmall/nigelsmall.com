@@ -1,0 +1,407 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Working with Django: neomodel &mdash; py2neo dev.dev.dev documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nige.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'dev.dev.dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="py2neo dev.dev.dev documentation" href="../" />
+    <link rel="prev" title="Cookbook" href="../cookbook/" /> 
+  </head>
+  <body>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../">
+              <img class="logo" src="../_static/py2neo.320x440.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Working with Django: neomodel</a><ul>
+<li><a class="reference internal" href="#the-basics">The basics</a></li>
+<li><a class="reference internal" href="#traversals-experimental">Traversals - EXPERIMENTAL</a></li>
+<li><a class="reference internal" href="#category-nodes">Category nodes</a></li>
+<li><a class="reference internal" href="#cardinality">Cardinality</a></li>
+<li><a class="reference internal" href="#cypher-queries">Cypher queries</a></li>
+<li><a class="reference internal" href="#relating-to-many-node-types">Relating to many node types</a></li>
+<li><a class="reference internal" href="#batch-create">Batch create</a></li>
+<li><a class="reference internal" href="#hooks-and-signals">Hooks and Signals</a></li>
+<li><a class="reference internal" href="#indexing">Indexing</a></li>
+<li><a class="reference internal" href="#properties">Properties</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../cookbook/"
+                        title="previous chapter">Cookbook</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+    <header>
+    <div class="title"><a href="/">Nigel Small</a></div>
+    <div class="contact">
+    <a href="http://twitter.com/neonige"><img src="../_static/twitter_mark.png"></a>
+    <a href="http://github.com/nigelsmall"><img src="../_static/github_mark.png"></a>
+    </div>
+    </header>
+    <main>
+        
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="working-with-django-neomodel">
+<h1>Working with Django: neomodel<a class="headerlink" href="#working-with-django-neomodel" title="Permalink to this headline">¶</a></h1>
+<img alt="neomodel" class="align-right" src="../_images/neomodel-300.png" />
+<p><a class="reference external" href="https://github.com/robinedwards/neomodel">neomodel</a> is an object mapper for
+the Neo4j graph database written in the style of the
+<a class="reference external" href="https://www.djangoproject.com/">Django</a> ORM. It is does not strictly require
+Django as a dependency but is recommended when using Django with Neo4j.</p>
+<p>For neo4j versions 1.8 - 1.9 (recommended). Python 2.7, 3.3 is supported.</p>
+<p>Neomodel is built on top of py2neo but is a separate project written by
+<a class="reference external" href="https://github.com/robinedwards">Robin Edwards</a>. As such it is not bundled
+within a py2neo distribution and requires separate installation:</p>
+<div class="section" id="the-basics">
+<h2>The basics<a class="headerlink" href="#the-basics" title="Permalink to this headline">¶</a></h2>
+<p>Set the location of neo4j via an environment variable (default is <a class="reference external" href="http://localhost:7474/db/data/">http://localhost:7474/db/data/</a>):</p>
+<div class="highlight-python"><div class="highlight"><pre>export NEO4J_REST_URL=http://user:password@localhost:7474/db/data/
+</pre></div>
+</div>
+<p>In the example below, there is one type of relationship present <cite>IS_FROM</cite>,
+we are defining two different ways for traversing it
+one accessible via Person objects and one via Country objects:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">neomodel</span> <span class="kn">import</span> <span class="p">(</span><span class="n">StructuredNode</span><span class="p">,</span> <span class="n">StringProperty</span><span class="p">,</span> <span class="n">IntegerProperty</span><span class="p">,</span>
+    <span class="n">RelationshipTo</span><span class="p">,</span> <span class="n">RelationshipFrom</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Country</span><span class="p">(</span><span class="n">StructuredNode</span><span class="p">):</span>
+    <span class="n">code</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="n">unique_index</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">required</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="c"># traverse incoming IS_FROM relation, inflate to Person objects</span>
+    <span class="n">inhabitant</span> <span class="o">=</span> <span class="n">RelationshipFrom</span><span class="p">(</span><span class="s">&#39;Person&#39;</span><span class="p">,</span> <span class="s">&#39;IS_FROM&#39;</span><span class="p">)</span>
+
+
+<span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">StructuredNode</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="n">unique_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">age</span> <span class="o">=</span> <span class="n">IntegerProperty</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+    <span class="c"># traverse outgoing IS_FROM relations, inflate to Country objects</span>
+    <span class="n">country</span> <span class="o">=</span> <span class="n">RelationshipTo</span><span class="p">(</span><span class="n">Country</span><span class="p">,</span> <span class="s">&#39;IS_FROM&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>We can use the <cite>Relationship</cite> class if we don&#8217;t want to specify a direction.</p>
+<p>Create, save delete etc:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">jim</span> <span class="o">=</span> <span class="n">Person</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;Jim&#39;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+<span class="n">jim</span><span class="o">.</span><span class="n">age</span> <span class="o">=</span> <span class="mi">4</span>
+<span class="n">jim</span><span class="o">.</span><span class="n">save</span><span class="p">()</span> <span class="c"># validation happens here</span>
+<span class="n">jim</span><span class="o">.</span><span class="n">delete</span><span class="p">()</span>
+<span class="n">jim</span><span class="o">.</span><span class="n">refresh</span><span class="p">()</span> <span class="c"># reload properties from neo</span>
+</pre></div>
+</div>
+<p>Using relationships:</p>
+<div class="highlight-python"><div class="highlight"><pre>germany = Country(code=&#39;DE&#39;).save()
+jim.country.connect(germany)
+
+if jim.country.is_connected(germany):
+    print(&quot;Jim&#39;s from Germany&quot;)
+
+for p in germany.inhabitant.all()
+    print(p.name) # Jim
+
+len(germany.inhabitant) # 1
+
+# Find people called &#39;Jim&#39; in germany
+germany.inhabitant.search(name=&#39;Jim&#39;)
+
+jim.country.disconnect(germany)
+</pre></div>
+</div>
+<p>Relationship models, define your relationship properties:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">FriendRel</span><span class="p">(</span><span class="n">StructuredRel</span><span class="p">):</span>
+    <span class="n">since</span> <span class="o">=</span> <span class="n">DateTimeProperty</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">pytz</span><span class="o">.</span><span class="n">utc</span><span class="p">))</span>
+    <span class="n">met</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">StructuredNode</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">()</span>
+    <span class="n">friends</span> <span class="o">=</span> <span class="n">RelationshipTo</span><span class="p">(</span><span class="s">&#39;Person&#39;</span><span class="p">,</span> <span class="s">&#39;FRIEND&#39;</span><span class="p">,</span> <span class="n">model</span><span class="o">=</span><span class="n">FriendRel</span><span class="p">)</span>
+
+<span class="n">rel</span> <span class="o">=</span> <span class="n">jim</span><span class="o">.</span><span class="n">friend</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">bob</span><span class="p">)</span>
+<span class="n">rel</span><span class="o">.</span><span class="n">since</span> <span class="c"># datetime object</span>
+</pre></div>
+</div>
+<p>You can optional specify the properties during connect:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">rel</span> <span class="o">=</span> <span class="n">jim</span><span class="o">.</span><span class="n">friend</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">bob</span><span class="p">,</span> <span class="p">{</span><span class="s">&#39;since&#39;</span><span class="p">:</span> <span class="n">yesterday</span><span class="p">,</span> <span class="s">&#39;met&#39;</span><span class="p">:</span> <span class="s">&#39;Paris&#39;</span><span class="p">})</span>
+
+<span class="k">print</span><span class="p">(</span><span class="n">rel</span><span class="o">.</span><span class="n">start_node</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="c"># jim</span>
+<span class="k">print</span><span class="p">(</span><span class="n">rel</span><span class="o">.</span><span class="n">end_node</span><span class="p">()</span><span class="o">.</span><span class="n">name</span><span class="p">)</span> <span class="c"># bob</span>
+
+<span class="n">rel</span><span class="o">.</span><span class="n">met</span> <span class="o">=</span> <span class="s">&quot;Amsterdam&quot;</span>
+<span class="n">rel</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>You can retrieve relationships between to nodes using the &#8216;relationship&#8217; method.
+This is only available for relationships with a defined structure:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">rel</span> <span class="o">=</span> <span class="n">jim</span><span class="o">.</span><span class="n">friend</span><span class="o">.</span><span class="n">relationship</span><span class="p">(</span><span class="n">bob</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Directionless relationships:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">StructuredNode</span><span class="p">):</span>
+    <span class="n">friends</span> <span class="o">=</span> <span class="n">Relationship</span><span class="p">(</span><span class="s">&#39;Person&#39;</span><span class="p">,</span> <span class="s">&#39;FRIEND&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When defining relationships, you may refer to classes in other modules.
+This helps avoid cyclic imports:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">Garage</span><span class="p">(</span><span class="n">StructuredNode</span><span class="p">):</span>
+    <span class="n">cars</span> <span class="o">=</span> <span class="n">RelationshipTo</span><span class="p">(</span><span class="s">&#39;transport.models.Car&#39;</span><span class="p">,</span> <span class="s">&#39;CAR&#39;</span><span class="p">)</span>
+    <span class="n">vans</span> <span class="o">=</span> <span class="n">RelationshipTo</span><span class="p">(</span><span class="s">&#39;.models.Van&#39;</span><span class="p">,</span> <span class="s">&#39;VAN&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>When defining models that have custom <cite>__init__(self, ...)</cite> function, don&#8217;t
+forget to call <cite>super()</cite>. Otherwise things start to fail:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">StructuredNode</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="n">unique_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">name</span><span class="p">,</span> <span class="o">**</span><span class="n">args</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+
+        <span class="nb">super</span><span class="p">(</span><span class="n">Person</span><span class="p">,</span> <span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="o">**</span><span class="n">args</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="traversals-experimental">
+<h2>Traversals - EXPERIMENTAL<a class="headerlink" href="#traversals-experimental" title="Permalink to this headline">¶</a></h2>
+<p>The first argument for the traverse method is the name of the relationship manager,
+in this example we traverse the friends relationship skipping the first node and limit to 10 nodes:</p>
+<div class="highlight-python"><div class="highlight"><pre># query executes on iteration
+for friend in jim.traverse(&#39;friends&#39;).order_by_desc(&#39;age&#39;).skip(1).limit(10).run():
+    print friend.name
+</pre></div>
+</div>
+<p>You can traverse as many levels as you like, run() executes the query:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="c"># order by country name</span>
+<span class="n">results</span> <span class="o">=</span> <span class="n">jim</span><span class="o">.</span><span class="n">traverse</span><span class="p">(</span><span class="s">&#39;friends&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">traverse</span><span class="p">(</span><span class="s">&#39;country&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s">&#39;name&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+
+<span class="c"># or friends name</span>
+<span class="n">jim</span><span class="o">.</span><span class="n">traverse</span><span class="p">(</span><span class="s">&#39;friends&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">traverse</span><span class="p">(</span><span class="s">&#39;country&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">order_by</span><span class="p">(</span><span class="s">&#39;friends.name&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Filtering by node propertes is achieved using the where method, values are deflated accordingly so datetimes
+for example work as expected:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">results</span> <span class="o">=</span> <span class="n">jim</span><span class="o">.</span><span class="n">traverse</span><span class="p">(</span><span class="s">&#39;friends&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">where</span><span class="p">(</span><span class="s">&#39;age&#39;</span><span class="p">,</span> <span class="s">&#39;&gt;&#39;</span><span class="p">,</span> <span class="mi">18</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>length and bool operations:</p>
+<div class="highlight-python"><div class="highlight"><pre>print &quot;Jim has &quot; + len(jim.traverse(&#39;friends&#39;) + &quot; friends&quot;
+</pre></div>
+</div>
+<p>You may also filter on relationship properties whilst traversing. In order to do this a relationship model
+must be specified on the start nodes relationship definition:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">recent_friends</span> <span class="o">=</span> <span class="n">jim</span><span class="o">.</span><span class="n">traverse</span><span class="p">(</span><span class="s">&#39;friends&#39;</span><span class="p">,</span> <span class="p">(</span><span class="s">&#39;since&#39;</span><span class="p">,</span> <span class="s">&#39;&gt;&#39;</span><span class="p">,</span> <span class="n">last_week</span><span class="p">),</span> <span class="p">(</span><span class="s">&#39;since&#39;</span><span class="p">,</span> <span class="s">&#39;&lt;&#39;</span><span class="p">,</span> <span class="n">today</span><span class="p">))</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="category-nodes">
+<h2>Category nodes<a class="headerlink" href="#category-nodes" title="Permalink to this headline">¶</a></h2>
+<p>Access all your instances of a class via the category node:</p>
+<div class="highlight-python"><div class="highlight"><pre>country_category = Country.category()
+for c in country_category.instance.all():
+    print c.name
+</pre></div>
+</div>
+<p>Ordering and pagination is possible via <cite>.traverse(&#8216;instance&#8217;)</cite>:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">country_category</span><span class="o">.</span><span class="n">traverse</span><span class="p">(</span><span class="s">&#39;instance&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">limit</span><span class="p">(</span><span class="mi">10</span><span class="p">)</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Note that <cite>connect</cite> and <cite>disconnect</cite> are not available through the <cite>instance</cite> relation.</p>
+</div>
+<div class="section" id="cardinality">
+<h2>Cardinality<a class="headerlink" href="#cardinality" title="Permalink to this headline">¶</a></h2>
+<p>It&#8217;s possible to enforce cardinality restrictions on your relationships.
+Remember this needs to be declared on both sides of the relationship for it to work:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">StructuredNode</span><span class="p">):</span>
+    <span class="n">car</span> <span class="o">=</span> <span class="n">RelationshipTo</span><span class="p">(</span><span class="s">&#39;Car&#39;</span><span class="p">,</span> <span class="s">&#39;CAR&#39;</span><span class="p">,</span> <span class="n">cardinality</span><span class="o">=</span><span class="n">One</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Car</span><span class="p">(</span><span class="n">StructuredNode</span><span class="p">):</span>
+    <span class="n">owner</span> <span class="o">=</span> <span class="n">RelationshipFrom</span><span class="p">(</span><span class="s">&#39;Person&#39;</span><span class="p">,</span> <span class="n">cardinality</span><span class="o">=</span><span class="n">One</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>The following cardinality classes are available:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">ZeroOMore</span> <span class="p">(</span><span class="n">default</span><span class="p">),</span> <span class="n">OneOrMore</span><span class="p">,</span> <span class="n">ZeroOrOne</span><span class="p">,</span> <span class="n">One</span>
+</pre></div>
+</div>
+<p>If cardinality is broken by existing data a <em>CardinalityViolation</em> exception is raised.
+On attempting to break a cardinality restriction a <em>AttemptedCardinalityViolation</em> is raised.</p>
+</div>
+<div class="section" id="cypher-queries">
+<h2>Cypher queries<a class="headerlink" href="#cypher-queries" title="Permalink to this headline">¶</a></h2>
+<p>You may handle more complex queries via cypher. Each node provides an &#8216;inflate&#8217; class method,
+this inflates py2neo nodes to neomodel node objects:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">StructuredNode</span><span class="p">):</span>
+    <span class="k">def</span> <span class="nf">friends</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="n">results</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">cypher</span><span class="p">(</span><span class="s">&quot;START a=node({self}) MATCH a-[:FRIEND]-&gt;(b) RETURN b&quot;</span><span class="p">);</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">__class__</span><span class="o">.</span><span class="n">inflate</span><span class="p">(</span><span class="n">row</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span> <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">results</span><span class="p">]</span>
+</pre></div>
+</div>
+<p>The self query parameter is prepopulated with the current node id. It&#8217;s possible to pass in your
+own query parameters to the cypher method.</p>
+<p>You may log queries by setting the environment variable <cite>NEOMODEL_CYPHER_DEBUG</cite> to true.</p>
+</div>
+<div class="section" id="relating-to-many-node-types">
+<h2>Relating to many node types<a class="headerlink" href="#relating-to-many-node-types" title="Permalink to this headline">¶</a></h2>
+<p>You can define relations of a single type to different <cite>StructuredNode</cite> classes.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">Humanbeing</span><span class="p">(</span><span class="n">StructuredNode</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">()</span>
+    <span class="n">has_a</span> <span class="o">=</span> <span class="n">RelationshipTo</span><span class="p">([</span><span class="s">&#39;Location&#39;</span><span class="p">,</span> <span class="s">&#39;Nationality&#39;</span><span class="p">],</span> <span class="s">&#39;HAS_A&#39;</span><span class="p">)</span>
+
+<span class="k">class</span> <span class="nc">Location</span><span class="p">(</span><span class="n">StructuredNode</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">()</span>
+
+<span class="k">class</span> <span class="nc">Nationality</span><span class="p">(</span><span class="n">StructuredNode</span><span class="p">):</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Remember that when traversing the <cite>has_a</cite> relation you will retrieve objects of different types.</p>
+</div>
+<div class="section" id="batch-create">
+<h2>Batch create<a class="headerlink" href="#batch-create" title="Permalink to this headline">¶</a></h2>
+<p>Atomically create multiple nodes in a single operation:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">people</span> <span class="o">=</span> <span class="n">Person</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;Tim&#39;</span><span class="p">,</span> <span class="s">&#39;age&#39;</span><span class="p">:</span> <span class="mi">83</span><span class="p">},</span>
+    <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;Bob&#39;</span><span class="p">,</span> <span class="s">&#39;age&#39;</span><span class="p">:</span> <span class="mi">23</span><span class="p">},</span>
+    <span class="p">{</span><span class="s">&#39;name&#39;</span><span class="p">:</span> <span class="s">&#39;Jill&#39;</span><span class="p">,</span> <span class="s">&#39;age&#39;</span><span class="p">:</span> <span class="mi">34</span><span class="p">},</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>This is useful for creating large sets of data. It&#8217;s worth experimenting with the size of batches
+to find the optimum performance suggestions on size around 300 - 500.</p>
+</div>
+<div class="section" id="hooks-and-signals">
+<h2>Hooks and Signals<a class="headerlink" href="#hooks-and-signals" title="Permalink to this headline">¶</a></h2>
+<p>You may define the following hook methods on your nodes:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">pre_save</span><span class="p">,</span> <span class="n">post_save</span><span class="p">,</span> <span class="n">pre_delete</span><span class="p">,</span> <span class="n">post_delete</span><span class="p">,</span> <span class="n">post_create</span>
+</pre></div>
+</div>
+<p>Signals are also supported <em>if</em> django is available:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">django.db.models</span> <span class="kn">import</span> <span class="n">signals</span>
+<span class="n">signals</span><span class="o">.</span><span class="n">post_save</span><span class="o">.</span><span class="n">connect</span><span class="p">(</span><span class="n">your_func</span><span class="p">,</span> <span class="n">sender</span><span class="o">=</span><span class="n">Person</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="indexing">
+<h2>Indexing<a class="headerlink" href="#indexing" title="Permalink to this headline">¶</a></h2>
+<p>Make use of indexes:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">jim</span> <span class="o">=</span> <span class="n">Person</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;Jim&#39;</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">Person</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">age</span><span class="o">=</span><span class="mi">3</span><span class="p">):</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+<span class="n">germany</span> <span class="o">=</span> <span class="n">Country</span><span class="p">(</span><span class="n">code</span><span class="o">=</span><span class="s">&#39;DE&#39;</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+</pre></div>
+</div>
+<p>Use advanced Lucene queries with the <cite>lucene-querybuilder</cite> module:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">lucenequerybuilder</span> <span class="kn">import</span> <span class="n">Q</span>
+
+<span class="n">Human</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;sarah&#39;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">3</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+<span class="n">Human</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;jim&#39;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">4</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+<span class="n">Human</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;bob&#39;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">5</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+<span class="n">Human</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;tim&#39;</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="mi">2</span><span class="p">)</span><span class="o">.</span><span class="n">save</span><span class="p">()</span>
+
+<span class="k">for</span> <span class="n">h</span> <span class="ow">in</span> <span class="n">Human</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">Q</span><span class="p">(</span><span class="s">&#39;age&#39;</span><span class="p">,</span> <span class="n">inrange</span><span class="o">=</span><span class="p">[</span><span class="mi">3</span><span class="p">,</span> <span class="mi">5</span><span class="p">])):</span>
+    <span class="k">print</span><span class="p">(</span><span class="n">h</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
+
+<span class="c"># prints: sarah, jim, bob</span>
+</pre></div>
+</div>
+<p>Or use lucene query syntax directly:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">Human</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="s">&quot;age:4&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Specify a custom index name for a class (inherited). Be very careful when sharing indexes
+between classes as this means nodes will inflated to any class sharing the index.
+Properties of the same name on different classes may conflict.:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">Badger</span><span class="p">(</span><span class="n">StructuredNode</span><span class="p">):</span>
+    <span class="n">__index__</span> <span class="o">=</span> <span class="s">&#39;MyBadgers&#39;</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="n">unique_index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="properties">
+<h2>Properties<a class="headerlink" href="#properties" title="Permalink to this headline">¶</a></h2>
+<p>The following properties are available:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">StringProperty</span><span class="p">,</span> <span class="n">IntegerProperty</span><span class="p">,</span> <span class="n">FloatProperty</span><span class="p">,</span> <span class="n">BooleanProperty</span>
+
+<span class="n">DateProperty</span><span class="p">,</span> <span class="n">DateTimeProperty</span><span class="p">,</span> <span class="n">JSONProperty</span><span class="p">,</span> <span class="n">AliasProperty</span>
+</pre></div>
+</div>
+<p>The <em>DateTimeProperty</em> accepts datetime.datetime objects of any timezone and stores them as a UTC epoch value.
+These epoch values are inflated to datetime.datetime objects with the UTC timezone set. If you want neomodel
+to raise an exception on receiving a datetime without a timezone you set the env var NEOMODEL_FORCE_TIMEZONE=1.</p>
+<p>The <em>DateProperty</em> accepts datetime.date objects which are stored as a string property &#8216;YYYY-MM-DD&#8217;.</p>
+<p><em>Default values</em> you may provide a default value to any property, this can also be a function or any callable:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">uuid</span> <span class="kn">import</span> <span class="n">uuid4</span>
+<span class="n">my_id</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="n">unique_index</span><span class="o">=</span><span class="bp">True</span><span class="p">,</span> <span class="n">default</span><span class="o">=</span><span class="n">uuid4</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>You may provide arguments using a wrapper function or lambda:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">my_datetime</span> <span class="o">=</span> <span class="n">DateTimeProperty</span><span class="p">(</span><span class="n">default</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">datetime</span><span class="o">.</span><span class="n">now</span><span class="p">(</span><span class="n">pytz</span><span class="o">.</span><span class="n">utc</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>The <em>AliasProperty</em> a special property for aliasing other properties and providing &#8216;magic&#8217; behaviour:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="n">StructuredNode</span><span class="p">):</span>
+    <span class="n">full_name</span> <span class="o">=</span> <span class="n">StringProperty</span><span class="p">(</span><span class="n">index</span><span class="o">=</span><span class="bp">True</span><span class="p">)</span>
+    <span class="n">name</span> <span class="o">=</span> <span class="n">AliasProperty</span><span class="p">(</span><span class="n">to</span><span class="o">=</span><span class="s">&#39;full_name&#39;</span><span class="p">)</span>
+
+<span class="n">Person</span><span class="o">.</span><span class="n">index</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&#39;Jim&#39;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer>
+        <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br>
+This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+    </footer>
+
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

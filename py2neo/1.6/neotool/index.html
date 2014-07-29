@@ -1,0 +1,303 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Command Line Tool &mdash; py2neo dev.dev.dev documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nige.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'dev.dev.dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="py2neo dev.dev.dev documentation" href="../" />
+    <link rel="next" title="Deprecated Features" href="../deprecated_features/" />
+    <link rel="prev" title="Date Modelling" href="../calendar/" /> 
+  </head>
+  <body>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../">
+              <img class="logo" src="../_static/py2neo.320x440.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Command Line Tool</a><ul>
+<li><a class="reference internal" href="#clearing-the-database">Clearing the Database</a></li>
+<li><a class="reference internal" href="#cypher-execution">Cypher Execution</a><ul>
+<li><a class="reference internal" href="#delimited-output">Delimited Output</a></li>
+<li><a class="reference internal" href="#json-output">JSON Output</a></li>
+<li><a class="reference internal" href="#geoff-output">Geoff Output</a></li>
+</ul>
+</li>
+<li><a class="reference internal" href="#inserting-merging-geoff-data">Inserting/Merging Geoff Data</a></li>
+<li><a class="reference internal" href="#converting-xml-data-into-geoff">Converting XML Data into Geoff</a></li>
+<li><a class="reference internal" href="#interactive-shell">Interactive Shell</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../calendar/"
+                        title="previous chapter">Date Modelling</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../deprecated_features/"
+                        title="next chapter">Deprecated Features</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+    <header>
+    <div class="title"><a href="/">Nigel Small</a></div>
+    <div class="contact">
+    <a href="http://twitter.com/neonige"><img src="../_static/twitter_mark.png"></a>
+    <a href="http://github.com/nigelsmall"><img src="../_static/github_mark.png"></a>
+    </div>
+    </header>
+    <main>
+        
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="command-line-tool">
+<h1>Command Line Tool<a class="headerlink" href="#command-line-tool" title="Permalink to this headline">¶</a></h1>
+<p>Py2neo provides a generic command line tool which taps into some of the
+functionality available within the library. This tool can be used directly from
+the Python module:</p>
+<div class="highlight-python"><div class="highlight"><pre>python -m py2neo.tool --help
+</pre></div>
+</div>
+<p>Alternatively, the simpler script wrapper can be used:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">neotool</span> <span class="o">--</span><span class="n">help</span>
+</pre></div>
+</div>
+<p>The general form for commands is:</p>
+<div class="highlight-python"><div class="highlight"><pre>neotool [&lt;options&gt;] &lt;command&gt; &lt;args&gt;
+</pre></div>
+</div>
+<p>General options are available to change the database connection used. These
+are:</p>
+<div class="highlight-python"><div class="highlight"><pre>-S/--scheme &lt;scheme&gt;           Set the URI scheme, e.g. (http, https)
+-H/--host &lt;host&gt;               Set database host
+-P/--port &lt;port&gt;               Set database port
+-U/--user &lt;user&gt;               Set HTTP basic auth user
+-W/--password &lt;password&gt;       Set HTTP basic auth password
+</pre></div>
+</div>
+<p>The set of commands available via Neotool are outlined below:</p>
+<div class="section" id="clearing-the-database">
+<h2>Clearing the Database<a class="headerlink" href="#clearing-the-database" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre>neotool clear
+</pre></div>
+</div>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p class="last">This will remove all nodes and relationships from the graph database
+(including the reference node).</p>
+</div>
+</div>
+<div class="section" id="cypher-execution">
+<h2>Cypher Execution<a class="headerlink" href="#cypher-execution" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre>neotool cypher &quot;start n=node(1) return n, n.name?&quot;
+</pre></div>
+</div>
+<p>Cypher queries passed will be executed and the results returned in an ASCII art
+table, such as the one below:</p>
+<div class="highlight-python"><div class="highlight"><pre> n                    | n.name?
+----------------------+---------
+ (1 {&quot;name&quot;:&quot;Alice&quot;}) | Alice
+</pre></div>
+</div>
+<div class="section" id="delimited-output">
+<h3>Delimited Output<a class="headerlink" href="#delimited-output" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre>neotool cypher-csv &quot;start n=node(1) return n.name, n.age?&quot;
+neotool cypher-tsv &quot;start n=node(1) return n.name, n.age?&quot;
+</pre></div>
+</div>
+<p>The results of Cypher queries can instead be returned as comma or tab separated
+values. Each value is encoded as JSON, so strings are output between double
+quotes whereas numbers and booleans are not. Arrays may also be output.</p>
+<p>Although it is possible to output nodes and relationships, this format is most
+useful when returning individual properties.</p>
+<p>Comma delimited output looks similar to that below:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="s">&quot;n.name&quot;</span><span class="p">,</span><span class="s">&quot;n.age?&quot;</span>
+<span class="s">&quot;Alice&quot;</span><span class="p">,</span><span class="mi">34</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="json-output">
+<h3>JSON Output<a class="headerlink" href="#json-output" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre>neotool cypher-json &quot;start n=node(1) return n&quot;
+</pre></div>
+</div>
+<p>The <tt class="docutils literal"><span class="pre">cypher-json</span></tt> command outputs query results within a JSON object. Nodes
+and relationships within the results produce nested objects similar to, but
+different from, the raw REST API results returned by the server.</p>
+<p>From the command line, output can be pretty printed by piping through the
+python <tt class="docutils literal"><span class="pre">json.tool</span></tt> module:</p>
+<div class="highlight-python"><div class="highlight"><pre>neotool cypher-json &quot;start n=node(1) return n&quot; | python -m json.tool
+</pre></div>
+</div>
+<p>Example output is below (not pretty printed by default):</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">[</span>
+    <span class="p">{</span>
+        <span class="s">&quot;n&quot;</span><span class="p">:</span> <span class="p">{</span>
+            <span class="s">&quot;properties&quot;</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s">&quot;age&quot;</span><span class="p">:</span> <span class="mi">34</span><span class="p">,</span>
+                <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;Alice&quot;</span>
+            <span class="p">},</span>
+            <span class="s">&quot;uri&quot;</span><span class="p">:</span> <span class="s">&quot;http://localhost:7474/db/data/node/1&quot;</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+<div class="section" id="geoff-output">
+<h3>Geoff Output<a class="headerlink" href="#geoff-output" title="Permalink to this headline">¶</a></h3>
+<div class="highlight-python"><div class="highlight"><pre>neotool cypher-geoff &quot;start n=node(1) return n&quot;
+</pre></div>
+</div>
+<p>Nodes and relationships can be output in Geoff format using the
+<tt class="docutils literal"><span class="pre">cypher-geoff</span></tt> command. Individual properties cannot be output with this
+method.</p>
+</div>
+</div>
+<div class="section" id="inserting-merging-geoff-data">
+<h2>Inserting/Merging Geoff Data<a class="headerlink" href="#inserting-merging-geoff-data" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre>neotool geoff-insert example.geoff
+neotool geoff-merge example.geoff
+</pre></div>
+</div>
+</div>
+<div class="section" id="converting-xml-data-into-geoff">
+<h2>Converting XML Data into Geoff<a class="headerlink" href="#converting-xml-data-into-geoff" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre>neotool xml-geoff example.xml
+</pre></div>
+</div>
+<p>Namespaces in more complex XML files are suppressed by default. The example
+below shows the output from conversion of an XBRL file that is included as a
+test file within the project source code:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ python -m py2neo.tool xml-geoff test/files/statement.xbrl
+(node_1 {&quot;OtherAdministrativeExpenses&quot;:35996000000,&quot;OtherAdministrativeExpenses contextRef&quot;:&quot;J2004&quot;,&quot;OtherAdministrativeExpenses decimals&quot;:0,&quot;OtherAdministrativeExpenses unitRef&quot;:&quot;EUR&quot;,&quot;OtherOperatingExpenses&quot;:870000000,&quot;OtherOperatingExpenses contextRef&quot;:&quot;J2004&quot;,&quot;OtherOperatingExpenses decimals&quot;:0,&quot;OtherOperatingExpenses unitRef&quot;:&quot;EUR&quot;,&quot;OtherOperatingIncomeTotalByNature&quot;:10430000000,&quot;OtherOperatingIncomeTotalByNature contextRef&quot;:&quot;J2004&quot;,&quot;OtherOperatingIncomeTotalByNature decimals&quot;:0,&quot;OtherOperatingIncomeTotalByNature unitRef&quot;:&quot;EUR&quot;,&quot;OtherOperatingIncomeTotalFinancialInstitutions&quot;:38679000000,&quot;OtherOperatingIncomeTotalFinancialInstitutions contextRef&quot;:&quot;J2004&quot;,&quot;OtherOperatingIncomeTotalFinancialInstitutions decimals&quot;:0,&quot;OtherOperatingIncomeTotalFinancialInstitutions unitRef&quot;:&quot;EUR&quot;,&quot;schemaRef href&quot;:&quot;http://www.org.com/xbrl/taxonomy&quot;,&quot;schemaRef type&quot;:&quot;simple&quot;})
+(BJ2004)
+(node_3 {&quot;identifier&quot;:&quot;ACME&quot;,&quot;identifier scheme&quot;:&quot;www.iqinfo.com/xbrl&quot;})
+(node_4 {&quot;instant&quot;:&quot;2004-01-01&quot;})
+(EJ2004)
+(node_6 {&quot;identifier&quot;:&quot;ACME&quot;,&quot;identifier scheme&quot;:&quot;www.iqinfo.com/xbrl&quot;})
+(node_7 {&quot;instant&quot;:&quot;2004-12-31&quot;})
+(J2004)
+(node_9 {&quot;identifier&quot;:&quot;ACME&quot;,&quot;identifier scheme&quot;:&quot;www.iqinfo.com/xbrl&quot;})
+(node_10 {&quot;endDate&quot;:&quot;2004-12-31&quot;,&quot;startDate&quot;:&quot;2004-01-01&quot;})
+(EUR {&quot;measure&quot;:&quot;iso4217:EUR&quot;})
+(node_1)-[:context]-&gt;(BJ2004)
+(BJ2004)-[:entity]-&gt;(node_3)
+(BJ2004)-[:period]-&gt;(node_4)
+(node_1)-[:context]-&gt;(EJ2004)
+(EJ2004)-[:entity]-&gt;(node_6)
+(EJ2004)-[:period]-&gt;(node_7)
+(node_1)-[:context]-&gt;(J2004)
+(J2004)-[:entity]-&gt;(node_9)
+(J2004)-[:period]-&gt;(node_10)
+(node_1)-[:unit]-&gt;(EUR)
+</pre></div>
+</div>
+<p>Namespace prefixes can however be supplied on the command line. These are
+prefixed to relationship type names in the output:</p>
+<div class="highlight-python"><div class="highlight"><pre>$ python -m py2neo.tool xml-geoff test/files/statement.xbrl xbrli=&quot;http://www.xbrl.org/2003/instance&quot;
+(node_1 {&quot;OtherAdministrativeExpenses&quot;:35996000000,&quot;OtherAdministrativeExpenses contextRef&quot;:&quot;J2004&quot;,&quot;OtherAdministrativeExpenses decimals&quot;:0,&quot;OtherAdministrativeExpenses unitRef&quot;:&quot;EUR&quot;,&quot;OtherOperatingExpenses&quot;:870000000,&quot;OtherOperatingExpenses contextRef&quot;:&quot;J2004&quot;,&quot;OtherOperatingExpenses decimals&quot;:0,&quot;OtherOperatingExpenses unitRef&quot;:&quot;EUR&quot;,&quot;OtherOperatingIncomeTotalByNature&quot;:10430000000,&quot;OtherOperatingIncomeTotalByNature contextRef&quot;:&quot;J2004&quot;,&quot;OtherOperatingIncomeTotalByNature decimals&quot;:0,&quot;OtherOperatingIncomeTotalByNature unitRef&quot;:&quot;EUR&quot;,&quot;OtherOperatingIncomeTotalFinancialInstitutions&quot;:38679000000,&quot;OtherOperatingIncomeTotalFinancialInstitutions contextRef&quot;:&quot;J2004&quot;,&quot;OtherOperatingIncomeTotalFinancialInstitutions decimals&quot;:0,&quot;OtherOperatingIncomeTotalFinancialInstitutions unitRef&quot;:&quot;EUR&quot;,&quot;schemaRef href&quot;:&quot;http://www.org.com/xbrl/taxonomy&quot;,&quot;schemaRef type&quot;:&quot;simple&quot;})
+(BJ2004)
+(node_3 {&quot;xbrli_identifier&quot;:&quot;ACME&quot;,&quot;xbrli_identifier scheme&quot;:&quot;www.iqinfo.com/xbrl&quot;})
+(node_4 {&quot;xbrli_instant&quot;:&quot;2004-01-01&quot;})
+(EJ2004)
+(node_6 {&quot;xbrli_identifier&quot;:&quot;ACME&quot;,&quot;xbrli_identifier scheme&quot;:&quot;www.iqinfo.com/xbrl&quot;})
+(node_7 {&quot;xbrli_instant&quot;:&quot;2004-12-31&quot;})
+(J2004)
+(node_9 {&quot;xbrli_identifier&quot;:&quot;ACME&quot;,&quot;xbrli_identifier scheme&quot;:&quot;www.iqinfo.com/xbrl&quot;})
+(node_10 {&quot;xbrli_endDate&quot;:&quot;2004-12-31&quot;,&quot;xbrli_startDate&quot;:&quot;2004-01-01&quot;})
+(EUR {&quot;xbrli_measure&quot;:&quot;iso4217:EUR&quot;})
+(node_1)-[:xbrli_context]-&gt;(BJ2004)
+(BJ2004)-[:xbrli_entity]-&gt;(node_3)
+(BJ2004)-[:xbrli_period]-&gt;(node_4)
+(node_1)-[:xbrli_context]-&gt;(EJ2004)
+(EJ2004)-[:xbrli_entity]-&gt;(node_6)
+(EJ2004)-[:xbrli_period]-&gt;(node_7)
+(node_1)-[:xbrli_context]-&gt;(J2004)
+(J2004)-[:xbrli_entity]-&gt;(node_9)
+(J2004)-[:xbrli_period]-&gt;(node_10)
+(node_1)-[:xbrli_unit]-&gt;(EUR)
+</pre></div>
+</div>
+</div>
+<div class="section" id="interactive-shell">
+<h2>Interactive Shell<a class="headerlink" href="#interactive-shell" title="Permalink to this headline">¶</a></h2>
+<p>To start an interactive shell, use:</p>
+<div class="highlight-python"><div class="highlight"><pre>neotool shell
+</pre></div>
+</div>
+<p>The Neotool Shell allows you to run Cypher queries from an interactive prompt.
+Queries may be entered directly or run from files using the EXECUTE command. To
+quit the shell, press Ctrl+D or use the EXIT command.</p>
+<p>Examples:</p>
+<div class="highlight-python"><div class="highlight"><pre>localhost:7474/cypher&gt; CREATE (a) RETURN a
+ a
+--------
+ (123)
+(1 row)
+</pre></div>
+</div>
+<div class="highlight-python"><div class="highlight"><pre>localhost:7474/cypher&gt; EXECUTE foo.cypher
+ a
+--------
+ (124)
+(1 row)
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer>
+        <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br>
+This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+    </footer>
+
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

@@ -1,0 +1,173 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Paths &mdash; py2neo dev.dev.dev documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nige.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'dev.dev.dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="py2neo dev.dev.dev documentation" href="../" />
+    <link rel="next" title="Schema" href="../schema/" />
+    <link rel="prev" title="Graphs, Nodes &amp; Relationships" href="../graphs_nodes_relationships/" /> 
+  </head>
+  <body>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../">
+              <img class="logo" src="../_static/py2neo.320x440.png" alt="Logo"/>
+            </a></p>
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../graphs_nodes_relationships/"
+                        title="previous chapter">Graphs, Nodes &amp; Relationships</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../schema/"
+                        title="next chapter">Schema</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+    <header>
+    <div class="title"><a href="/">Nigel Small</a></div>
+    <div class="contact">
+    <a href="http://twitter.com/neonige"><img src="../_static/twitter_mark.png"></a>
+    <a href="http://github.com/nigelsmall"><img src="../_static/github_mark.png"></a>
+    </div>
+    </header>
+    <main>
+        
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="paths">
+<h1>Paths<a class="headerlink" href="#paths" title="Permalink to this headline">¶</a></h1>
+<p>Beyond simple nodes and relationships, more advanced structures come into play
+when writing Neo4j-based applications. The simplest of these is the <em>path</em>
+which is a linear sequence of nodes and relationships chained together end to
+end. Py2neo provides the <a class="reference internal" href="#py2neo.neo4j.Path" title="py2neo.neo4j.Path"><tt class="xref py py-class docutils literal"><span class="pre">Path</span></tt></a> class which is
+used to represent these structures:</p>
+<dl class="class">
+<dt id="py2neo.neo4j.Path">
+<em class="property">class </em><tt class="descclassname">py2neo.neo4j.</tt><tt class="descname">Path</tt><big>(</big><em>*entities</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Path" title="Permalink to this definition">¶</a></dt>
+<dd><p>A chain of relationships.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">py2neo</span> <span class="kn">import</span> <span class="n">Node</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">Rev</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">alice</span><span class="p">,</span> <span class="n">bob</span><span class="p">,</span> <span class="n">carol</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Alice&quot;</span><span class="p">),</span> <span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Bob&quot;</span><span class="p">),</span> <span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Carol&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">abc</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">alice</span><span class="p">,</span> <span class="s">&quot;KNOWS&quot;</span><span class="p">,</span> <span class="n">bob</span><span class="p">,</span> <span class="n">Rev</span><span class="p">(</span><span class="s">&quot;KNOWS&quot;</span><span class="p">),</span> <span class="n">carol</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">abc</span>
+<span class="go">({name:&quot;Alice&quot;})-[:KNOWS]-&gt;({name:&quot;Bob&quot;})&lt;-[:KNOWS]-({name:&quot;Carol&quot;})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">abc</span><span class="o">.</span><span class="n">nodes</span>
+<span class="go">(({name:&quot;Alice&quot;}), ({name:&quot;Bob&quot;}), ({name:&quot;Carol&quot;}))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">abc</span><span class="o">.</span><span class="n">rels</span>
+<span class="go">(-[:KNOWS]-&gt;, &lt;-[:KNOWS]-)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">abc</span><span class="o">.</span><span class="n">relationships</span>
+<span class="go">(({name:&quot;Alice&quot;})-[:KNOWS]-&gt;({name:&quot;Bob&quot;}), ({name:&quot;Carol&quot;})-[:KNOWS]-&gt;({name:&quot;Bob&quot;}))</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dave</span><span class="p">,</span> <span class="n">eve</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Dave&quot;</span><span class="p">),</span> <span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Eve&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">de</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dave</span><span class="p">,</span> <span class="s">&quot;KNOWS&quot;</span><span class="p">,</span> <span class="n">eve</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">de</span>
+<span class="go">({name:&quot;Dave&quot;})-[:KNOWS]-&gt;({name:&quot;Eve&quot;})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">abcde</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">abc</span><span class="p">,</span> <span class="s">&quot;KNOWS&quot;</span><span class="p">,</span> <span class="n">de</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">abcde</span>
+<span class="go">({name:&quot;Alice&quot;})-[:KNOWS]-&gt;({name:&quot;Bob&quot;})&lt;-[:KNOWS]-({name:&quot;Carol&quot;})-[:KNOWS]-&gt;({name:&quot;Dave&quot;})-[:KNOWS]-&gt;({name:&quot;Eve&quot;})</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="py2neo.neo4j.Path.create">
+<tt class="descname">create</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Path.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a path within the specified <cite>graph</cite> from the nodes
+and relationships within this <tt class="xref py py-class docutils literal"><span class="pre">Path</span></tt> instance. This makes
+use of Cypher&#8217;s <tt class="docutils literal"><span class="pre">CREATE</span></tt> clause.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="py2neo.neo4j.Path.get_or_create">
+<tt class="descname">get_or_create</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Path.get_or_create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a unique path within the specified <cite>graph</cite> from the
+nodes and relationships within this <tt class="xref py py-class docutils literal"><span class="pre">Path</span></tt> instance. This
+makes use of Cypher&#8217;s <tt class="docutils literal"><span class="pre">CREATE</span> <span class="pre">UNIQUE</span></tt> clause.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="py2neo.neo4j.Path.nodes">
+<tt class="descname">nodes</tt><a class="headerlink" href="#py2neo.neo4j.Path.nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a tuple of all the nodes which make up this path.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="py2neo.neo4j.Path.order">
+<tt class="descname">order</tt><a class="headerlink" href="#py2neo.neo4j.Path.order" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of nodes within this path.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="py2neo.neo4j.Path.relationships">
+<tt class="descname">relationships</tt><a class="headerlink" href="#py2neo.neo4j.Path.relationships" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of all the relationships which make up this path.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="py2neo.neo4j.Path.rels">
+<tt class="descname">rels</tt><a class="headerlink" href="#py2neo.neo4j.Path.rels" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a tuple of all the rels which make up this path.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="py2neo.neo4j.Path.size">
+<tt class="descname">size</tt><a class="headerlink" href="#py2neo.neo4j.Path.size" title="Permalink to this definition">¶</a></dt>
+<dd><p>The number of relationships within this path.</p>
+</dd></dl>
+
+</dd></dl>
+
+<p>Paths can be returned from some <a class="reference external" href="cypher">Cypher</a> queries and are used
+internally within <a class="reference internal" href="../graphs_nodes_relationships/#py2neo.neo4j.Node.create_path" title="py2neo.neo4j.Node.create_path"><tt class="xref py py-func docutils literal"><span class="pre">create_path</span></tt></a>
+and <a class="reference internal" href="../graphs_nodes_relationships/#py2neo.neo4j.Node.get_or_create_path" title="py2neo.neo4j.Node.get_or_create_path"><tt class="xref py py-func docutils literal"><span class="pre">get_or_create_path</span></tt></a>.</p>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer>
+        <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br>
+This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+    </footer>
+
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

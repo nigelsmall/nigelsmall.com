@@ -1,0 +1,371 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Cypher &mdash; py2neo dev.dev.dev documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nige.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'dev.dev.dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="py2neo dev.dev.dev documentation" href="../" />
+    <link rel="next" title="Object-Graph Mapping (OGM)" href="../ogm/" />
+    <link rel="prev" title="Batches" href="../batches/" /> 
+  </head>
+  <body>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../">
+              <img class="logo" src="../_static/py2neo.320x440.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Cypher</a><ul>
+<li><a class="reference internal" href="#id2">Cypher Transactions</a></li>
+<li><a class="reference internal" href="#classic-cypher-execution">Classic Cypher Execution</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../batches/"
+                        title="previous chapter">Batches</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../ogm/"
+                        title="next chapter">Object-Graph Mapping (OGM)</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+    <header>
+    <div class="title"><a href="/">Nigel Small</a></div>
+    <div class="contact">
+    <a href="http://twitter.com/neonige"><img src="../_static/twitter_mark.png"></a>
+    <a href="http://github.com/nigelsmall"><img src="../_static/github_mark.png"></a>
+    </div>
+    </header>
+    <main>
+        
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="cypher">
+<h1>Cypher<a class="headerlink" href="#cypher" title="Permalink to this headline">¶</a></h1>
+<p><a class="reference external" href="http://www.neo4j.org/learn/cypher">Cypher</a> is to Neo4j as SQL is to
+relational databases. It is a declarative language that provides facilities
+to query and manipulate data within a graph database using a syntax which is
+both quick to learn and easy to read.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">In py2neo 1.6.0, execution functions in the <cite>cypher</cite> module were deprecated
+and replaced by the <a class="reference internal" href="#py2neo.neo4j.CypherQuery" title="py2neo.neo4j.CypherQuery"><tt class="xref py py-class docutils literal"><span class="pre">CypherQuery</span></tt></a>
+class from the <cite>neo4j</cite> module. From version 1.6.1 onwards, the entire
+<cite>cypher</cite> module has been repurposed and now contains new support for
+<a class="reference external" href="http://docs.neo4j.org/chunked/milestone/rest-api-transactional.html">Cypher transactions</a>,
+as introduced in Neo4j 2.0.</p>
+</div>
+<div class="section" id="id2">
+<h2>Cypher Transactions<a class="headerlink" href="#id2" title="Permalink to this headline">¶</a></h2>
+<p>Cypher transactions were introduced in Neo4j 2.0 and allow multiple statements
+to be executed within a single server transaction.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">py2neo</span> <span class="kn">import</span> <span class="n">cypher</span>
+
+<span class="n">session</span> <span class="o">=</span> <span class="n">cypher</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="s">&quot;http://localhost:7474&quot;</span><span class="p">)</span>
+<span class="n">tx</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">create_transaction</span><span class="p">()</span>
+
+<span class="c"># send three statements to for execution but leave the transaction open</span>
+<span class="n">tx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;MERGE (a:Person {name:&#39;Alice&#39;}) &quot;</span>
+          <span class="s">&quot;RETURN a&quot;</span><span class="p">)</span>
+<span class="n">tx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;MERGE (b:Person {name:&#39;Bob&#39;}) &quot;</span>
+          <span class="s">&quot;RETURN b&quot;</span><span class="p">)</span>
+<span class="n">tx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;MATCH (a:Person), (b:Person) &quot;</span>
+          <span class="s">&quot;WHERE a.name = &#39;Alice&#39; AND b.name = &#39;Bob&#39; &quot;</span>
+          <span class="s">&quot;CREATE UNIQUE (a)-[ab:KNOWS]-&gt;(b) &quot;</span>
+          <span class="s">&quot;RETURN ab&quot;</span><span class="p">)</span>
+<span class="n">tx</span><span class="o">.</span><span class="n">execute</span><span class="p">()</span>
+
+<span class="c"># send another three statements and commit the transaction</span>
+<span class="n">tx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;MERGE (c:Person {name:&#39;Carol&#39;}) &quot;</span>
+          <span class="s">&quot;RETURN c&quot;</span><span class="p">)</span>
+<span class="n">tx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;MERGE (d:Person {name:&#39;Dave&#39;}) &quot;</span>
+          <span class="s">&quot;RETURN d&quot;</span><span class="p">)</span>
+<span class="n">tx</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;MATCH (c:Person), (d:Person) &quot;</span>
+          <span class="s">&quot;WHERE c.name = &#39;Carol&#39; AND d.name = &#39;Dave&#39; &quot;</span>
+          <span class="s">&quot;CREATE UNIQUE (c)-[cd:KNOWS]-&gt;(d) &quot;</span>
+          <span class="s">&quot;RETURN cd&quot;</span><span class="p">)</span>
+<span class="n">tx</span><span class="o">.</span><span class="n">commit</span><span class="p">()</span>
+</pre></div>
+</div>
+<dl class="class">
+<dt id="py2neo.cypher.Session">
+<em class="property">class </em><tt class="descclassname">py2neo.cypher.</tt><tt class="descname">Session</tt><big>(</big><em>uri=None</em><big>)</big><a class="headerlink" href="#py2neo.cypher.Session" title="Permalink to this definition">¶</a></dt>
+<dd><p>A Session is the base object from which Cypher transactions are
+created and is instantiated using a root service URI. If unspecified, this
+defaults to the <cite>DEFAULT_URI</cite>.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">py2neo</span> <span class="kn">import</span> <span class="n">cypher</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">session</span> <span class="o">=</span> <span class="n">cypher</span><span class="o">.</span><span class="n">Session</span><span class="p">(</span><span class="s">&quot;http://arthur:excalibur@camelot:9999&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="method">
+<dt id="py2neo.cypher.Session.create_transaction">
+<tt class="descname">create_transaction</tt><big>(</big><big>)</big><a class="headerlink" href="#py2neo.cypher.Session.create_transaction" title="Permalink to this definition">¶</a></dt>
+<dd><p>Create a new transaction object.</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">py2neo</span> <span class="kn">import</span> <span class="n">cypher</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">session</span> <span class="o">=</span> <span class="n">cypher</span><span class="o">.</span><span class="n">Session</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">tx</span> <span class="o">=</span> <span class="n">session</span><span class="o">.</span><span class="n">create_transaction</span><span class="p">()</span>
+</pre></div>
+</div>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">new transaction object</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Return type:</th><td class="field-body">Transaction</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="py2neo.cypher.Session.execute">
+<tt class="descname">execute</tt><big>(</big><em>statement</em>, <em>parameters=None</em><big>)</big><a class="headerlink" href="#py2neo.cypher.Session.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Execute a single statement and return the results.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="py2neo.cypher.Transaction">
+<em class="property">class </em><tt class="descclassname">py2neo.cypher.</tt><tt class="descname">Transaction</tt><big>(</big><em>uri</em><big>)</big><a class="headerlink" href="#py2neo.cypher.Transaction" title="Permalink to this definition">¶</a></dt>
+<dd><p>A transaction is a transient resource that allows multiple Cypher
+statements to be executed within a single server transaction.</p>
+<dl class="method">
+<dt id="py2neo.cypher.Transaction.append">
+<tt class="descname">append</tt><big>(</big><em>statement</em>, <em>parameters=None</em><big>)</big><a class="headerlink" href="#py2neo.cypher.Transaction.append" title="Permalink to this definition">¶</a></dt>
+<dd><p>Append a statement to the current queue of statements to be
+executed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>statement</strong> &#8211; the statement to execute</li>
+<li><strong>parameters</strong> &#8211; a dictionary of execution parameters</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="py2neo.cypher.Transaction.commit">
+<tt class="descname">commit</tt><big>(</big><big>)</big><a class="headerlink" href="#py2neo.cypher.Transaction.commit" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send all pending statements to the server for execution and commit
+the transaction.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of results from pending statements</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="py2neo.cypher.Transaction.execute">
+<tt class="descname">execute</tt><big>(</big><big>)</big><a class="headerlink" href="#py2neo.cypher.Transaction.execute" title="Permalink to this definition">¶</a></dt>
+<dd><p>Send all pending statements to the server for execution, leaving
+the transaction open for further statements.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">list of results from pending statements</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="py2neo.cypher.Transaction.finished">
+<tt class="descname">finished</tt><a class="headerlink" href="#py2neo.cypher.Transaction.finished" title="Permalink to this definition">¶</a></dt>
+<dd><p>Indicates whether or not this transaction has been completed or is
+still open.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body"><tt class="xref py py-const docutils literal"><span class="pre">True</span></tt> if this transaction has finished,
+<tt class="xref py py-const docutils literal"><span class="pre">False</span></tt> otherwise</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="py2neo.cypher.Transaction.rollback">
+<tt class="descname">rollback</tt><big>(</big><big>)</big><a class="headerlink" href="#py2neo.cypher.Transaction.rollback" title="Permalink to this definition">¶</a></dt>
+<dd><p>Rollback the current transaction.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="py2neo.cypher.Record">
+<em class="property">class </em><tt class="descclassname">py2neo.cypher.</tt><tt class="descname">Record</tt><big>(</big><em>producer</em>, <em>values</em><big>)</big><a class="headerlink" href="#py2neo.cypher.Record" title="Permalink to this definition">¶</a></dt>
+<dd><p>A single row of a Cypher execution result, holding a sequence of named
+values.</p>
+<dl class="attribute">
+<dt id="py2neo.cypher.Record.columns">
+<tt class="descname">columns</tt><a class="headerlink" href="#py2neo.cypher.Record.columns" title="Permalink to this definition">¶</a></dt>
+<dd><p>The column names defined for this record.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">tuple of column names</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="py2neo.cypher.Record.values">
+<tt class="descname">values</tt><a class="headerlink" href="#py2neo.cypher.Record.values" title="Permalink to this definition">¶</a></dt>
+<dd><p>The values stored in this record.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Returns:</th><td class="field-body">tuple of values</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="exception">
+<dt id="py2neo.cypher.TransactionError">
+<em class="property">exception </em><tt class="descclassname">py2neo.cypher.</tt><tt class="descname">TransactionError</tt><big>(</big><em>message</em><big>)</big><a class="headerlink" href="#py2neo.cypher.TransactionError" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raised when an error occurs while processing a Cypher transaction.</p>
+</dd></dl>
+
+<dl class="exception">
+<dt id="py2neo.cypher.TransactionFinished">
+<em class="property">exception </em><tt class="descclassname">py2neo.cypher.</tt><tt class="descname">TransactionFinished</tt><a class="headerlink" href="#py2neo.cypher.TransactionFinished" title="Permalink to this definition">¶</a></dt>
+<dd><p>Raised when actions are attempted against a finished Transaction.</p>
+</dd></dl>
+
+</div>
+<div class="section" id="classic-cypher-execution">
+<h2>Classic Cypher Execution<a class="headerlink" href="#classic-cypher-execution" title="Permalink to this headline">¶</a></h2>
+<dl class="class">
+<dt id="py2neo.neo4j.CypherQuery">
+<em class="property">class </em><tt class="descclassname">py2neo.neo4j.</tt><tt class="descname">CypherQuery</tt><big>(</big><em>graph</em>, <em>query</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.CypherQuery" title="Permalink to this definition">¶</a></dt>
+<dd><p>A reusable Cypher query. To create a new query object, a graph and the
+query text need to be supplied:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">py2neo</span> <span class="kn">import</span> <span class="n">Graph</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">py2neo.cypher.simple</span> <span class="kn">import</span> <span class="n">CypherQuery</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">graph</span> <span class="o">=</span> <span class="n">Graph</span><span class="p">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">query</span> <span class="o">=</span> <span class="n">CypherQuery</span><span class="p">(</span><span class="n">graph</span><span class="p">,</span> <span class="s">&quot;CREATE (a) RETURN a&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<dl class="attribute">
+<dt id="py2neo.neo4j.CypherQuery.string">
+<tt class="descname">string</tt><a class="headerlink" href="#py2neo.neo4j.CypherQuery.string" title="Permalink to this definition">¶</a></dt>
+<dd><p>The text of the query.</p>
+</dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="py2neo.neo4j.CypherResults">
+<em class="property">class </em><tt class="descclassname">py2neo.neo4j.</tt><tt class="descname">CypherResults</tt><big>(</big><em>columns</em>, <em>data</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.CypherResults" title="Permalink to this definition">¶</a></dt>
+<dd><p>A static set of results from a Cypher query.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="py2neo.neo4j.IterableCypherResults">
+<em class="property">class </em><tt class="descclassname">py2neo.neo4j.</tt><tt class="descname">IterableCypherResults</tt><big>(</big><em>graph</em>, <em>response</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.IterableCypherResults" title="Permalink to this definition">¶</a></dt>
+<dd><p>An iterable set of results from a Cypher query.</p>
+<div class="highlight-python"><div class="highlight"><pre>query = graph.cypher.query(&quot;START n=node(*) RETURN n LIMIT 10&quot;)
+for record in query.stream():
+    print record[0]
+</pre></div>
+</div>
+<p>Each record returned is cast into a <tt class="xref py py-class docutils literal"><span class="pre">namedtuple</span></tt> with names
+derived from the resulting column names.</p>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Results are available as returned from the server and are decoded
+incrementally. This means that there is no need to wait for the
+entire response to be received before processing can occur.</p>
+</div>
+<dl class="method">
+<dt id="py2neo.neo4j.IterableCypherResults.close">
+<tt class="descname">close</tt><big>(</big><big>)</big><a class="headerlink" href="#py2neo.neo4j.IterableCypherResults.close" title="Permalink to this definition">¶</a></dt>
+<dd><p>Close results and free resources.</p>
+</dd></dl>
+
+<dl class="attribute">
+<dt id="py2neo.neo4j.IterableCypherResults.columns">
+<tt class="descname">columns</tt><a class="headerlink" href="#py2neo.neo4j.IterableCypherResults.columns" title="Permalink to this definition">¶</a></dt>
+<dd><p>Column names.</p>
+</dd></dl>
+
+</dd></dl>
+
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer>
+        <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br>
+This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+    </footer>
+
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

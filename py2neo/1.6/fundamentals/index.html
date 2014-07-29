@@ -1,0 +1,278 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Fundamentals &mdash; py2neo dev.dev.dev documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nige.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     'dev.dev.dev',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="py2neo dev.dev.dev documentation" href="../" />
+    <link rel="next" title="Graphs, Nodes &amp; Relationships" href="../graphs_nodes_relationships/" />
+    <link rel="prev" title="Requirements &amp; Installation" href="../install/" /> 
+  </head>
+  <body>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../">
+              <img class="logo" src="../_static/py2neo.320x440.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Fundamentals</a><ul>
+<li><a class="reference internal" href="#node-relationship-abstracts">Node &amp; Relationship Abstracts</a></li>
+<li><a class="reference internal" href="#referencing-nodes-within-the-same-batch">Referencing Nodes within the same Batch</a></li>
+<li><a class="reference internal" href="#node-relationship-ids">Node &amp; Relationship IDs</a></li>
+<li><a class="reference internal" href="#transactions">Transactions</a></li>
+<li><a class="reference internal" href="#errors">Errors</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../install/"
+                        title="previous chapter">Requirements &amp; Installation</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../graphs_nodes_relationships/"
+                        title="next chapter">Graphs, Nodes &amp; Relationships</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+    <header>
+    <div class="title"><a href="/">Nigel Small</a></div>
+    <div class="contact">
+    <a href="http://twitter.com/neonige"><img src="../_static/twitter_mark.png"></a>
+    <a href="http://github.com/nigelsmall"><img src="../_static/github_mark.png"></a>
+    </div>
+    </header>
+    <main>
+        
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="fundamentals">
+<h1>Fundamentals<a class="headerlink" href="#fundamentals" title="Permalink to this headline">¶</a></h1>
+<p>At the heart of py2neo are three core classes needed for every application:
+<a class="reference internal" href="../graphs_nodes_relationships/#py2neo.neo4j.Graph" title="py2neo.neo4j.Graph"><tt class="xref py py-class docutils literal"><span class="pre">Graph</span></tt></a>,
+<a class="reference internal" href="../graphs_nodes_relationships/#py2neo.neo4j.Node" title="py2neo.neo4j.Node"><tt class="xref py py-class docutils literal"><span class="pre">Node</span></tt></a> and
+<a class="reference internal" href="../graphs_nodes_relationships/#py2neo.neo4j.Relationship" title="py2neo.neo4j.Relationship"><tt class="xref py py-class docutils literal"><span class="pre">Relationship</span></tt></a>. A
+<tt class="docutils literal"><span class="pre">Graph</span></tt> maintains a link to a Neo4j database via a root URI.
+For a default installation, this will be <cite>http://localhost:7474/db/data/</cite>
+(don&#8217;t forget the trailing slash!) and can be constructed as follows:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">py2neo</span> <span class="kn">import</span> <span class="n">neo4j</span>
+<span class="n">graph</span> <span class="o">=</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="s">&quot;http://localhost:7474/db/data/&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>A <tt class="docutils literal"><span class="pre">Graph</span></tt> object provides access to a number of core methods,
+such as those to create and delete nodes, match relationships and manage
+indexes. One of the most useful methods is simply named
+<a class="reference internal" href="../graphs_nodes_relationships/#py2neo.neo4j.Graph.create" title="py2neo.neo4j.Graph.create"><tt class="xref py py-func docutils literal"><span class="pre">create</span></tt></a> and this can be
+used to easily build nodes and relationships within the graph. Imagine we
+wanted to model the following data:</p>
+<div class="highlight-python"><div class="highlight"><pre>(Bruce {&quot;name&quot;: &quot;Bruce Willis&quot;})
+(John {&quot;name&quot;: &quot;John McClane&quot;})
+(Alan {&quot;name&quot;: &quot;Alan Rickman&quot;})
+(Hans {&quot;name&quot;: &quot;Hans Gruber&quot;})
+(Nakatomi {&quot;name&quot;: &quot;Nakatomi Plaza&quot;})
+(Bruce)-[:PLAYS]-&gt;(John)
+(Alan)-[:PLAYS]-&gt;(Hans)
+(John)-[:VISITS]-&gt;(Nakatomi)
+(Hans)-[:STEALS_FROM]-&gt;(Nakatomi)
+(John)-[:KILLS]-&gt;(Hans)
+</pre></div>
+</div>
+<p>This could be carried out in a single <tt class="docutils literal"><span class="pre">create</span></tt> statement:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">py2neo</span> <span class="kn">import</span> <span class="n">node</span><span class="p">,</span> <span class="n">rel</span>
+<span class="n">die_hard</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="n">node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Bruce Willis&quot;</span><span class="p">),</span>
+    <span class="n">node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;John McClane&quot;</span><span class="p">),</span>
+    <span class="n">node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Alan Rickman&quot;</span><span class="p">),</span>
+    <span class="n">node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Hans Gruber&quot;</span><span class="p">),</span>
+    <span class="n">node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Nakatomi Plaza&quot;</span><span class="p">),</span>
+    <span class="n">rel</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;PLAYS&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span>
+    <span class="n">rel</span><span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="s">&quot;PLAYS&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+    <span class="n">rel</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&quot;VISITS&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+    <span class="n">rel</span><span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="s">&quot;STEALS_FROM&quot;</span><span class="p">,</span> <span class="mi">4</span><span class="p">),</span>
+    <span class="n">rel</span><span class="p">(</span><span class="mi">1</span><span class="p">,</span> <span class="s">&quot;KILLS&quot;</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>Each of the arguments passed to the statement above describes either a <tt class="docutils literal"><span class="pre">Node</span></tt>
+or a <tt class="docutils literal"><span class="pre">Relationship</span></tt>. In py2neo, both of these entities may be either
+<em>abstract</em> or <em>concrete</em>. A concrete entity describes one which exists (or has
+existed) within a graph database; an abstract entity does not have such a link.</p>
+<p>The same underlying classes are used to describe both abstract and concrete
+entities. The core difference is that concrete entities will always have a
+value within their <tt class="docutils literal"><span class="pre">__uri__</span></tt> property whereas for abstract entities, this is
+<tt class="xref py py-const docutils literal"><span class="pre">None</span></tt>. Both nodes and relationships provide an <tt class="docutils literal"><span class="pre">is_abstract</span></tt>
+property to allow easy determination of this attribute.</p>
+<div class="section" id="node-relationship-abstracts">
+<h2>Node &amp; Relationship Abstracts<a class="headerlink" href="#node-relationship-abstracts" title="Permalink to this headline">¶</a></h2>
+<p>Many methods within py2neo require nodes and relationships to be provided in
+abstract form, as in the example above. There are several different notations
+for this but wherever possible, the <tt class="xref py py-func docutils literal"><span class="pre">node</span></tt> and
+<tt class="xref py py-func docutils literal"><span class="pre">rel</span></tt> functions should be used.</p>
+<dl class="function">
+<dt id="py2neo.node">
+<tt class="descclassname">py2neo.</tt><tt class="descname">node</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#py2neo.node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cast the arguments provided to a <tt class="xref py py-class docutils literal"><span class="pre">neo4j.Node</span></tt>. The
+following general combinations are possible:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Node</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Node</span><span class="o">.</span><span class="n">cast</span><span class="p">()</span>
+<span class="go">()</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Node</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s">&quot;Person&quot;</span><span class="p">)</span>
+<span class="go">(:Person)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Node</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Alice&quot;</span><span class="p">)</span>
+<span class="go">({name:&quot;Alice&quot;})</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">Node</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s">&quot;Person&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&quot;Alice&quot;</span><span class="p">)</span>
+<span class="go">(:Person {name:&quot;Alice&quot;})</span>
+</pre></div>
+</div>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">node()</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">node(node_instance)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">node(property_dict)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">node(**properties)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">node(int)</span></tt> -&gt; NodePointer(int)</li>
+<li><tt class="docutils literal"><span class="pre">node(None)</span></tt> -&gt; None</li>
+</ul>
+<p>If <tt class="xref py py-const docutils literal"><span class="pre">None</span></tt> is passed as the only argument, <tt class="xref py py-const docutils literal"><span class="pre">None</span></tt> is
+returned instead of a <tt class="docutils literal"><span class="pre">Node</span></tt> instance.</p>
+<p>Examples:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">node</span><span class="p">()</span>
+<span class="n">node</span><span class="p">(</span><span class="n">Node</span><span class="p">(</span><span class="s">&quot;http://localhost:7474/db/data/node/1&quot;</span><span class="p">))</span>
+<span class="n">node</span><span class="p">({</span><span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;Alice&quot;</span><span class="p">})</span>
+<span class="n">node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Alice&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Other representations:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span><span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;Alice&quot;</span><span class="p">}</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<dl class="function">
+<dt id="py2neo.rel">
+<tt class="descclassname">py2neo.</tt><tt class="descname">rel</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#py2neo.rel" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cast the arguments provided to a <tt class="xref py py-class docutils literal"><span class="pre">neo4j.Relationship</span></tt>. The
+following general combinations are possible:</p>
+<ul class="simple">
+<li><tt class="docutils literal"><span class="pre">rel(relationship_instance)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">rel((start_node,</span> <span class="pre">type,</span> <span class="pre">end_node))</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">rel((start_node,</span> <span class="pre">type,</span> <span class="pre">end_node,</span> <span class="pre">properties))</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">rel((start_node,</span> <span class="pre">(type,</span> <span class="pre">properties),</span> <span class="pre">end_node))</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">rel(start_node,</span> <span class="pre">(type,</span> <span class="pre">properties),</span> <span class="pre">end_node)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">rel(start_node,</span> <span class="pre">type,</span> <span class="pre">end_node,</span> <span class="pre">properties)</span></tt></li>
+<li><tt class="docutils literal"><span class="pre">rel(start_node,</span> <span class="pre">type,</span> <span class="pre">end_node,</span> <span class="pre">**properties)</span></tt></li>
+</ul>
+<p>Examples:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">rel</span><span class="p">(</span><span class="n">Relationship</span><span class="p">(</span><span class="s">&quot;http://localhost:7474/db/data/relationship/1&quot;</span><span class="p">))</span>
+<span class="n">rel</span><span class="p">((</span><span class="n">alice</span><span class="p">,</span> <span class="s">&quot;KNOWS&quot;</span><span class="p">,</span> <span class="n">bob</span><span class="p">))</span>
+<span class="n">rel</span><span class="p">((</span><span class="n">alice</span><span class="p">,</span> <span class="s">&quot;KNOWS&quot;</span><span class="p">,</span> <span class="n">bob</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;since&quot;</span><span class="p">:</span> <span class="mi">1999</span><span class="p">}))</span>
+<span class="n">rel</span><span class="p">((</span><span class="n">alice</span><span class="p">,</span> <span class="p">(</span><span class="s">&quot;KNOWS&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;since&quot;</span><span class="p">:</span> <span class="mi">1999</span><span class="p">}),</span> <span class="n">bob</span><span class="p">))</span>
+<span class="n">rel</span><span class="p">(</span><span class="n">alice</span><span class="p">,</span> <span class="p">(</span><span class="s">&quot;KNOWS&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;since&quot;</span><span class="p">:</span> <span class="mi">1999</span><span class="p">}),</span> <span class="n">bob</span><span class="p">)</span>
+<span class="n">rel</span><span class="p">(</span><span class="n">alice</span><span class="p">,</span> <span class="s">&quot;KNOWS&quot;</span><span class="p">,</span> <span class="n">bob</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;since&quot;</span><span class="p">:</span> <span class="mi">1999</span><span class="p">})</span>
+<span class="n">rel</span><span class="p">(</span><span class="n">alice</span><span class="p">,</span> <span class="s">&quot;KNOWS&quot;</span><span class="p">,</span> <span class="n">bob</span><span class="p">,</span> <span class="n">since</span><span class="o">=</span><span class="mi">1999</span><span class="p">)</span>
+</pre></div>
+</div>
+<p>Other representations:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">(</span><span class="n">alice</span><span class="p">,</span> <span class="s">&quot;KNOWS&quot;</span><span class="p">,</span> <span class="n">bob</span><span class="p">)</span>
+<span class="p">(</span><span class="n">alice</span><span class="p">,</span> <span class="s">&quot;KNOWS&quot;</span><span class="p">,</span> <span class="n">bob</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;since&quot;</span><span class="p">:</span> <span class="mi">1999</span><span class="p">})</span>
+<span class="p">(</span><span class="n">alice</span><span class="p">,</span> <span class="p">(</span><span class="s">&quot;KNOWS&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;since&quot;</span><span class="p">:</span> <span class="mi">1999</span><span class="p">}),</span> <span class="n">bob</span><span class="p">)</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The other representations shown are supported although may give less
+readability and are not considered future-proof.</p>
+</div>
+</div>
+<div class="section" id="referencing-nodes-within-the-same-batch">
+<h2>Referencing Nodes within the same Batch<a class="headerlink" href="#referencing-nodes-within-the-same-batch" title="Permalink to this headline">¶</a></h2>
+<p>Within a batch context, it is often desirable to refer to a node within the
+same batch. In some circumstances, it is possible to use an integer reference
+to such a node and this makes it possible to carry out certain atomic
+operations, such as creating a relationship between two newly-created nodes:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">graph</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">node</span><span class="p">({</span><span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;Alice&quot;</span><span class="p">}),</span> <span class="n">node</span><span class="p">({</span><span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;Bob&quot;</span><span class="p">}),</span> <span class="n">rel</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;KNOWS&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+</pre></div>
+</div>
+<p>Due to server limitations however, not all functions support this capability.
+In particular, functions that rely on implicit Cypher queries, such as
+<tt class="xref py py-func docutils literal"><span class="pre">WriteBatch.create_path()</span></tt> cannot
+support this notation.</p>
+</div>
+<div class="section" id="node-relationship-ids">
+<h2>Node &amp; Relationship IDs<a class="headerlink" href="#node-relationship-ids" title="Permalink to this headline">¶</a></h2>
+<p>Py2neo provides limited facilities for managing node and relationship IDs.
+Generally speaking, these IDs should not carry any relevance within your
+application. There have been a number of discussions about this within the
+Neo4j mailing list and Stack Overflow as the ID is an internal artifact and
+should not be used like a primary key. It&#8217;s purpose is more akin to an
+in-memory address.</p>
+<p>If you require unique identifiers, consider using
+<a class="reference external" href="http://docs.python.org/2/library/uuid.html#uuid.uuid4">UUIDs</a>.</p>
+</div>
+<div class="section" id="transactions">
+<h2>Transactions<a class="headerlink" href="#transactions" title="Permalink to this headline">¶</a></h2>
+<p>Py2neo does not yet provide explicit support for transactions. Instead,
+consider using a Cypher query or a batch request.</p>
+</div>
+<div class="section" id="errors">
+<h2>Errors<a class="headerlink" href="#errors" title="Permalink to this headline">¶</a></h2>
+<p>HTTP requests may occasionally trigger an error response. The exceptions which
+may be raised are below and correspond to the equivalently named HTTP
+response statuses.</p>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer>
+        <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br>
+This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+    </footer>
+
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>
