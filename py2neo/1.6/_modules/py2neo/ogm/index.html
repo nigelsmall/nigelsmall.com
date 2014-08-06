@@ -1,0 +1,425 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>py2neo.ogm &mdash; py2neo 1.6.4 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/nige.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.6.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="py2neo 1.6.4 documentation" href="../../../" />
+    <link rel="up" title="py2neo" href="../" /> 
+  </head>
+  <body>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../">
+              <img class="logo" src="../../../_static/py2neo-glossy.190x260.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+    <header>
+    <div class="title"><a href="/">Nigel Small</a></div>
+    <div class="contact">
+    <a href="http://twitter.com/neonige"><img src="../../../_static/twitter_mark.png"></a>
+    <a href="http://github.com/nigelsmall"><img src="../../../_static/github_mark.png"></a>
+    </div>
+    </header>
+    <main>
+        
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for py2neo.ogm</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="c"># Copyright 2011-2014, Nigel Small</span>
+<span class="c">#</span>
+<span class="c"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c"># you may not use this file except in compliance with the License.</span>
+<span class="c"># You may obtain a copy of the License at</span>
+<span class="c">#</span>
+<span class="c">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c"># See the License for the specific language governing permissions and</span>
+<span class="c"># limitations under the License.</span>
+
+<span class="sd">&quot;&quot;&quot; The ogm module provides Object to Graph Mapping features similar to ORM</span>
+<span class="sd">facilities available for relational databases. All functionality is available</span>
+<span class="sd">through the :py:class:`Store` class which is bound to a specific</span>
+<span class="sd">:py:class:`neo4j.GraphDatabaseService` instance on creation.</span>
+
+<span class="sd">Conceptually, a mapped object &quot;owns&quot; a single node within the graph along with</span>
+<span class="sd">all of that node&#39;s outgoing relationships. These features are managed via a</span>
+<span class="sd">pair of attributes called `__node__` and `__rel__` which store details of the</span>
+<span class="sd">mapped node and the outgoing relationships respectively. The only specific</span>
+<span class="sd">requirement for a mapped object is that it has a nullary constructor which can</span>
+<span class="sd">be used to create new instances.</span>
+
+<span class="sd">The `__node__` attribute holds a :py:class:`neo4j.Node` object which is the</span>
+<span class="sd">node to which this object is mapped. If the attribute does not exist, or is</span>
+<span class="sd">:py:const:`None`, the object is considered &quot;unsaved&quot;.</span>
+
+<span class="sd">The `__rel__` attribute holds a dictionary of outgoing relationship details.</span>
+<span class="sd">Each key corresponds to a relationship type and each value to a list of</span>
+<span class="sd">2-tuples representing the outgoing relationships of that type. Within each</span>
+<span class="sd">2-tuple, the first value holds a dictionary of relationship properties (which</span>
+<span class="sd">may be empty) and the second value holds the endpoint. The endpoint may be</span>
+<span class="sd">either a :py:class:`neo4j.Node` instance or another mapped object. Any such</span>
+<span class="sd">objects which are unsaved will be lazily saved as required by creation of the</span>
+<span class="sd">relationship itself. The following data structure outline shows an example of</span>
+<span class="sd">a `__rel__` attribute (where `alice` and `bob` represent other mapped objects::</span>
+
+<span class="sd">    {</span>
+<span class="sd">        &quot;LIKES&quot;: [</span>
+<span class="sd">            ({}, alice),</span>
+<span class="sd">            ({&quot;since&quot;: 1999}, bob)</span>
+<span class="sd">        ]</span>
+<span class="sd">    }</span>
+
+<span class="sd">To manage relationships, use the :py:func:`Store.relate` and</span>
+<span class="sd">:py:func:`Store.separate` methods. Neither method makes any calls to the</span>
+<span class="sd">database and operates only on the local `__rel__` attribute. Changes must be</span>
+<span class="sd">explicitly saved via one of the available save methods. The</span>
+<span class="sd">:py:func:`Store.load_related` method loads all objects marked as related by</span>
+<span class="sd">the `__rel__` attribute.</span>
+
+<span class="sd">The code below shows an example of usage::</span>
+
+<span class="sd">    from py2neo import neo4j, ogm</span>
+
+<span class="sd">    class Person(object):</span>
+
+<span class="sd">        def __init__(self, email=None, name=None, age=None):</span>
+<span class="sd">            self.email = email</span>
+<span class="sd">            self.name = name</span>
+<span class="sd">            self.age = age</span>
+
+<span class="sd">        def __str__(self):</span>
+<span class="sd">            return self.name</span>
+
+<span class="sd">    graph_db = neo4j.GraphDatabaseService()</span>
+<span class="sd">    store = ogm.Store(graph_db)</span>
+
+<span class="sd">    alice = Person(&quot;alice@example.com&quot;, &quot;Alice&quot;, 34)</span>
+<span class="sd">    store.save_unique(&quot;People&quot;, &quot;email&quot;, alice.email, alice)</span>
+
+<span class="sd">    bob = Person(&quot;bob@example.org&quot;, &quot;Bob&quot;, 66)</span>
+<span class="sd">    carol = Person(&quot;carol@example.net&quot;, &quot;Carol&quot;, 42)</span>
+<span class="sd">    store.relate(alice, &quot;LIKES&quot;, bob)     # these relationships are not saved</span>
+<span class="sd">    store.relate(alice, &quot;LIKES&quot;, carol)   # until `alice` is saved</span>
+<span class="sd">    store.save(alice)</span>
+
+<span class="sd">    friends = store.load_related(alice, &quot;LIKES&quot;, Person)</span>
+<span class="sd">    print(&quot;Alice likes {0}&quot;.format(&quot; and &quot;.join(str(f) for f in friends)))</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">from</span> <span class="nn">.</span> <span class="kn">import</span> <span class="n">neo4j</span>
+
+
+<div class="viewcode-block" id="NotSaved"><a class="viewcode-back" href="../../../ogm/#py2neo.ogm.NotSaved">[docs]</a><span class="k">class</span> <span class="nc">NotSaved</span><span class="p">(</span><span class="ne">ValueError</span><span class="p">):</span>
+    <span class="sd">&quot;&quot;&quot; Raised when an object has not been saved but a bound node is required.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">pass</span>
+
+</div>
+<div class="viewcode-block" id="Store"><a class="viewcode-back" href="../../../ogm/#py2neo.ogm.Store">[docs]</a><span class="k">class</span> <span class="nc">Store</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">graph_db</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">graph_db</span> <span class="o">=</span> <span class="n">graph_db</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_db</span><span class="o">.</span><span class="n">supports_optional_match</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__delete_query</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;START a=node({A}) &quot;</span>
+                                   <span class="s">&quot;OPTIONAL MATCH a-[r]-b &quot;</span>
+                                   <span class="s">&quot;DELETE r, a&quot;</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__delete_query</span> <span class="o">=</span> <span class="p">(</span><span class="s">&quot;START a=node({A}) &quot;</span>
+                                   <span class="s">&quot;MATCH a-[r?]-b &quot;</span>
+                                   <span class="s">&quot;DELETE r, a&quot;</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_assert_saved</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subj</span><span class="p">):</span>
+        <span class="k">try</span><span class="p">:</span>
+            <span class="n">node</span> <span class="o">=</span> <span class="n">subj</span><span class="o">.</span><span class="n">__node__</span>
+            <span class="k">if</span> <span class="n">node</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="n">NotSaved</span><span class="p">(</span><span class="n">subj</span><span class="p">)</span>
+        <span class="k">except</span> <span class="ne">AttributeError</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="n">NotSaved</span><span class="p">(</span><span class="n">subj</span><span class="p">)</span>
+
+    <span class="k">def</span> <span class="nf">_get_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">endpoint</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="s">&quot;__node__&quot;</span><span class="p">):</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">endpoint</span><span class="o">.</span><span class="n">__node__</span>
+
+    <span class="k">def</span> <span class="nf">_is_same</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">):</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">endpoint</span><span class="p">,</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">Node</span><span class="p">):</span>
+            <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s">&quot;__node__&quot;</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">endpoint</span> <span class="o">==</span> <span class="n">obj</span><span class="o">.</span><span class="n">__node__</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">return</span> <span class="bp">False</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">endpoint</span> <span class="ow">is</span> <span class="n">obj</span>
+
+<div class="viewcode-block" id="Store.is_saved"><a class="viewcode-back" href="../../../ogm/#py2neo.ogm.Store.is_saved">[docs]</a>    <span class="k">def</span> <span class="nf">is_saved</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Return :py:const:`True` if the object `subj` has been saved to</span>
+<span class="sd">        the database, :py:const:`False` otherwise.</span>
+
+<span class="sd">        :param subj: the object to test</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">return</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">subj</span><span class="p">,</span> <span class="s">&quot;__node__&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">subj</span><span class="o">.</span><span class="n">__node__</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span>
+</div>
+<div class="viewcode-block" id="Store.relate"><a class="viewcode-back" href="../../../ogm/#py2neo.ogm.Store.relate">[docs]</a>    <span class="k">def</span> <span class="nf">relate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subj</span><span class="p">,</span> <span class="n">rel_type</span><span class="p">,</span> <span class="n">obj</span><span class="p">,</span> <span class="n">properties</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Define a relationship between `subj` and `obj` of type `rel_type`.</span>
+<span class="sd">        This is a local operation only: nothing is saved to the database until</span>
+<span class="sd">        a save method is called. Relationship properties may optionally be</span>
+<span class="sd">        specified.</span>
+
+<span class="sd">        :param subj: the object bound to the start of the relationship</span>
+<span class="sd">        :param rel_type: the relationship type</span>
+<span class="sd">        :param obj: the object bound to the end of the relationship</span>
+<span class="sd">        :param properties: properties attached to the relationship (optional)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">subj</span><span class="p">,</span> <span class="s">&quot;__rel__&quot;</span><span class="p">):</span>
+            <span class="n">subj</span><span class="o">.</span><span class="n">__rel__</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">if</span> <span class="n">rel_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">subj</span><span class="o">.</span><span class="n">__rel__</span><span class="p">:</span>
+            <span class="n">subj</span><span class="o">.</span><span class="n">__rel__</span><span class="p">[</span><span class="n">rel_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">subj</span><span class="o">.</span><span class="n">__rel__</span><span class="p">[</span><span class="n">rel_type</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">properties</span> <span class="ow">or</span> <span class="p">{},</span> <span class="n">obj</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="Store.separate"><a class="viewcode-back" href="../../../ogm/#py2neo.ogm.Store.separate">[docs]</a>    <span class="k">def</span> <span class="nf">separate</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subj</span><span class="p">,</span> <span class="n">rel_type</span><span class="p">,</span> <span class="n">obj</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Remove any relationship definitions which match the criteria</span>
+<span class="sd">        specified. This is a local operation only: nothing is saved to the</span>
+<span class="sd">        database until a save method is called. If no object is specified, all</span>
+<span class="sd">        relationships of type `rel_type` are removed.</span>
+
+<span class="sd">        :param subj: the object bound to the start of the relationship</span>
+<span class="sd">        :param rel_type: the relationship type</span>
+<span class="sd">        :param obj: the object bound to the end of the relationship (optional)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">subj</span><span class="p">,</span> <span class="s">&quot;__rel__&quot;</span><span class="p">):</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">rel_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">subj</span><span class="o">.</span><span class="n">__rel__</span><span class="p">:</span>
+            <span class="k">return</span>
+        <span class="k">if</span> <span class="n">obj</span> <span class="ow">is</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="k">del</span> <span class="n">subj</span><span class="o">.</span><span class="n">__rel__</span><span class="p">[</span><span class="n">rel_type</span><span class="p">]</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">subj</span><span class="o">.</span><span class="n">__rel__</span><span class="p">[</span><span class="n">rel_type</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="n">props</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">props</span><span class="p">,</span> <span class="n">endpoint</span> <span class="ow">in</span> <span class="n">subj</span><span class="o">.</span><span class="n">__rel__</span><span class="p">[</span><span class="n">rel_type</span><span class="p">]</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_same</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">endpoint</span><span class="p">)</span>
+            <span class="p">]</span>
+</div>
+<div class="viewcode-block" id="Store.load_related"><a class="viewcode-back" href="../../../ogm/#py2neo.ogm.Store.load_related">[docs]</a>    <span class="k">def</span> <span class="nf">load_related</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subj</span><span class="p">,</span> <span class="n">rel_type</span><span class="p">,</span> <span class="n">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Load all nodes related to `subj` by a relationship of type</span>
+<span class="sd">        `rel_type` into objects of type `cls`.</span>
+
+<span class="sd">        :param subj: the object bound to the start of the relationship</span>
+<span class="sd">        :param rel_type: the relationship type</span>
+<span class="sd">        :param cls: the class to load all related objects into</span>
+<span class="sd">        :return: list of `cls` instances</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">subj</span><span class="p">,</span> <span class="s">&quot;__rel__&quot;</span><span class="p">):</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="n">rel_type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">subj</span><span class="o">.</span><span class="n">__rel__</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_node</span><span class="p">(</span><span class="n">endpoint</span><span class="p">))</span>
+            <span class="k">for</span> <span class="n">rel_props</span><span class="p">,</span> <span class="n">endpoint</span> <span class="ow">in</span> <span class="n">subj</span><span class="o">.</span><span class="n">__rel__</span><span class="p">[</span><span class="n">rel_type</span><span class="p">]</span>
+        <span class="p">]</span>
+</div>
+<div class="viewcode-block" id="Store.load"><a class="viewcode-back" href="../../../ogm/#py2neo.ogm.Store.load">[docs]</a>    <span class="k">def</span> <span class="nf">load</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">cls</span><span class="p">,</span> <span class="n">node</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Load and return an object of type `cls` from database node `node`.</span>
+
+<span class="sd">        :param cls: the class of the object to be returned</span>
+<span class="sd">        :param node: the node from which to load object data</span>
+<span class="sd">        :return: a `cls` instance</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">subj</span> <span class="o">=</span> <span class="n">cls</span><span class="p">()</span>
+        <span class="nb">setattr</span><span class="p">(</span><span class="n">subj</span><span class="p">,</span> <span class="s">&quot;__node__&quot;</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">reload</span><span class="p">(</span><span class="n">subj</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">subj</span>
+</div>
+<div class="viewcode-block" id="Store.load_indexed"><a class="viewcode-back" href="../../../ogm/#py2neo.ogm.Store.load_indexed">[docs]</a>    <span class="k">def</span> <span class="nf">load_indexed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index_name</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Load zero or more indexed nodes from the database into a list of</span>
+<span class="sd">        objects.</span>
+
+<span class="sd">        :param index_name: the node index name</span>
+<span class="sd">        :param key: the index key</span>
+<span class="sd">        :param value: the index value</span>
+<span class="sd">        :param cls: the class of the object to be returned</span>
+<span class="sd">        :return: a list of `cls` instances</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_db</span><span class="o">.</span><span class="n">get_index</span><span class="p">(</span><span class="n">neo4j</span><span class="o">.</span><span class="n">Node</span><span class="p">,</span> <span class="n">index_name</span><span class="p">)</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">return</span> <span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span> <span class="k">for</span> <span class="n">node</span> <span class="ow">in</span> <span class="n">nodes</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="Store.load_unique"><a class="viewcode-back" href="../../../ogm/#py2neo.ogm.Store.load_unique">[docs]</a>    <span class="k">def</span> <span class="nf">load_unique</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index_name</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">cls</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Load a uniquely indexed node from the database into an object.</span>
+
+<span class="sd">        :param index_name: the node index name</span>
+<span class="sd">        :param key: the index key</span>
+<span class="sd">        :param value: the index value</span>
+<span class="sd">        :param cls: the class of the object to be returned</span>
+<span class="sd">        :return: as instance of `cls` containing the loaded data</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_db</span><span class="o">.</span><span class="n">get_index</span><span class="p">(</span><span class="n">neo4j</span><span class="o">.</span><span class="n">Node</span><span class="p">,</span> <span class="n">index_name</span><span class="p">)</span>
+        <span class="n">nodes</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">nodes</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">None</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">nodes</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">LookupError</span><span class="p">(</span><span class="s">&quot;Multiple nodes match the given criteria; &quot;</span>
+                              <span class="s">&quot;consider using `load_all` instead.&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="n">cls</span><span class="p">,</span> <span class="n">nodes</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</div>
+<div class="viewcode-block" id="Store.reload"><a class="viewcode-back" href="../../../ogm/#py2neo.ogm.Store.reload">[docs]</a>    <span class="k">def</span> <span class="nf">reload</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Reload properties and relationships from a database node into</span>
+<span class="sd">        `subj`.</span>
+
+<span class="sd">        :param subj: the object to reload</span>
+<span class="sd">        :raise NotSaved: if `subj` is not linked to a database node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assert_saved</span><span class="p">(</span><span class="n">subj</span><span class="p">)</span>
+        <span class="c"># naively copy properties from node to object</span>
+        <span class="n">properties</span> <span class="o">=</span> <span class="n">subj</span><span class="o">.</span><span class="n">__node__</span><span class="o">.</span><span class="n">get_properties</span><span class="p">()</span>
+        <span class="k">for</span> <span class="n">key</span> <span class="ow">in</span> <span class="n">subj</span><span class="o">.</span><span class="n">__dict__</span><span class="p">:</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;_&quot;</span><span class="p">)</span> <span class="ow">and</span> <span class="n">key</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">properties</span><span class="p">:</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">subj</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="bp">None</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">properties</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;_&quot;</span><span class="p">):</span>
+                <span class="nb">setattr</span><span class="p">(</span><span class="n">subj</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+        <span class="n">subj</span><span class="o">.</span><span class="n">__rel__</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">rel</span> <span class="ow">in</span> <span class="n">subj</span><span class="o">.</span><span class="n">__node__</span><span class="o">.</span><span class="n">match</span><span class="p">():</span>
+            <span class="k">if</span> <span class="n">rel</span><span class="o">.</span><span class="n">type</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">subj</span><span class="o">.</span><span class="n">__rel__</span><span class="p">:</span>
+                <span class="n">subj</span><span class="o">.</span><span class="n">__rel__</span><span class="p">[</span><span class="n">rel</span><span class="o">.</span><span class="n">type</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">subj</span><span class="o">.</span><span class="n">__rel__</span><span class="p">[</span><span class="n">rel</span><span class="o">.</span><span class="n">type</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">rel</span><span class="o">.</span><span class="n">get_properties</span><span class="p">(),</span> <span class="n">rel</span><span class="o">.</span><span class="n">end_node</span><span class="p">))</span>
+</div>
+<div class="viewcode-block" id="Store.save"><a class="viewcode-back" href="../../../ogm/#py2neo.ogm.Store.save">[docs]</a>    <span class="k">def</span> <span class="nf">save</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subj</span><span class="p">,</span> <span class="n">node</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Save an object to a database node.</span>
+
+<span class="sd">        :param subj: the object to save</span>
+<span class="sd">        :param node: the database node to save to (if omitted, will re-save to</span>
+<span class="sd">            same node as previous save)</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="n">node</span> <span class="ow">is</span> <span class="ow">not</span> <span class="bp">None</span><span class="p">:</span>
+            <span class="n">subj</span><span class="o">.</span><span class="n">__node__</span> <span class="o">=</span> <span class="n">node</span>
+        <span class="c"># naively copy properties from object to node</span>
+        <span class="n">props</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="k">for</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">subj</span><span class="o">.</span><span class="n">__dict__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">key</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s">&quot;_&quot;</span><span class="p">):</span>
+                <span class="n">props</span><span class="p">[</span><span class="n">key</span><span class="p">]</span> <span class="o">=</span> <span class="n">value</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">subj</span><span class="p">,</span> <span class="s">&quot;__node__&quot;</span><span class="p">):</span>
+            <span class="n">subj</span><span class="o">.</span><span class="n">__node__</span><span class="o">.</span><span class="n">set_properties</span><span class="p">(</span><span class="n">props</span><span class="p">)</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">CypherQuery</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_db</span><span class="p">,</span> <span class="s">&quot;START a=node({A}) &quot;</span>
+                                                     <span class="s">&quot;MATCH (a)-[r]-&gt;(b) &quot;</span>
+                                                     <span class="s">&quot;DELETE r&quot;</span><span class="p">)</span>
+            <span class="n">query</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">A</span><span class="o">=</span><span class="n">subj</span><span class="o">.</span><span class="n">__node__</span><span class="o">.</span><span class="n">_id</span><span class="p">)</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="n">subj</span><span class="o">.</span><span class="n">__node__</span><span class="p">,</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_db</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">props</span><span class="p">)</span>
+        <span class="c"># write rels</span>
+        <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">subj</span><span class="p">,</span> <span class="s">&quot;__rel__&quot;</span><span class="p">):</span>
+            <span class="n">batch</span> <span class="o">=</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">WriteBatch</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_db</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">rel_type</span><span class="p">,</span> <span class="n">rels</span> <span class="ow">in</span> <span class="n">subj</span><span class="o">.</span><span class="n">__rel__</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+                <span class="k">for</span> <span class="n">rel_props</span><span class="p">,</span> <span class="n">endpoint</span> <span class="ow">in</span> <span class="n">rels</span><span class="p">:</span>
+                    <span class="n">end_node</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_node</span><span class="p">(</span><span class="n">endpoint</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">familiar</span><span class="p">(</span><span class="n">end_node</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_db</span><span class="p">):</span>
+                        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="n">end_node</span><span class="p">)</span>
+                    <span class="n">batch</span><span class="o">.</span><span class="n">create</span><span class="p">((</span><span class="n">subj</span><span class="o">.</span><span class="n">__node__</span><span class="p">,</span> <span class="n">rel_type</span><span class="p">,</span> <span class="n">end_node</span><span class="p">,</span> <span class="n">rel_props</span><span class="p">))</span>
+            <span class="n">batch</span><span class="o">.</span><span class="n">run</span><span class="p">()</span>
+        <span class="k">return</span> <span class="n">subj</span>
+</div>
+<div class="viewcode-block" id="Store.save_indexed"><a class="viewcode-back" href="../../../ogm/#py2neo.ogm.Store.save_indexed">[docs]</a>    <span class="k">def</span> <span class="nf">save_indexed</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index_name</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="o">*</span><span class="n">subj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Save one or more objects to the database, indexed under the</span>
+<span class="sd">        supplied criteria.</span>
+
+<span class="sd">        :param index_name: the node index name</span>
+<span class="sd">        :param key: the index key</span>
+<span class="sd">        :param value: the index value</span>
+<span class="sd">        :param subj: one or more objects to save</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_db</span><span class="o">.</span><span class="n">get_or_create_index</span><span class="p">(</span><span class="n">neo4j</span><span class="o">.</span><span class="n">Node</span><span class="p">,</span> <span class="n">index_name</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">subj</span> <span class="ow">in</span> <span class="n">subj</span><span class="p">:</span>
+            <span class="n">index</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_node</span><span class="p">(</span><span class="n">subj</span><span class="p">)))</span>
+</div>
+<div class="viewcode-block" id="Store.save_unique"><a class="viewcode-back" href="../../../ogm/#py2neo.ogm.Store.save_unique">[docs]</a>    <span class="k">def</span> <span class="nf">save_unique</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index_name</span><span class="p">,</span> <span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="n">subj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Save an object to the database, uniquely indexed under the</span>
+<span class="sd">        supplied criteria.</span>
+
+<span class="sd">        :param index_name: the node index name</span>
+<span class="sd">        :param key: the index key</span>
+<span class="sd">        :param value: the index value</span>
+<span class="sd">        :param subj: the object to save</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">index</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">graph_db</span><span class="o">.</span><span class="n">get_or_create_index</span><span class="p">(</span><span class="n">neo4j</span><span class="o">.</span><span class="n">Node</span><span class="p">,</span> <span class="n">index_name</span><span class="p">)</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="n">index</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span><span class="n">key</span><span class="p">,</span> <span class="n">value</span><span class="p">,</span> <span class="p">{})</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">subj</span><span class="p">,</span> <span class="n">node</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="Store.delete"><a class="viewcode-back" href="../../../ogm/#py2neo.ogm.Store.delete">[docs]</a>    <span class="k">def</span> <span class="nf">delete</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">subj</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Delete a saved object node from the database as well as all</span>
+<span class="sd">        incoming and outgoing relationships.</span>
+
+<span class="sd">        :param subj: the object to delete from the database</span>
+<span class="sd">        :raise NotSaved: if `subj` is not linked to a database node</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_assert_saved</span><span class="p">(</span><span class="n">subj</span><span class="p">)</span>
+        <span class="n">node</span> <span class="o">=</span> <span class="n">subj</span><span class="o">.</span><span class="n">__node__</span>
+        <span class="k">del</span> <span class="n">subj</span><span class="o">.</span><span class="n">__node__</span>
+        <span class="n">neo4j</span><span class="o">.</span><span class="n">CypherQuery</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">graph_db</span><span class="p">,</span>
+                          <span class="bp">self</span><span class="o">.</span><span class="n">__delete_query</span><span class="p">)</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">A</span><span class="o">=</span><span class="n">node</span><span class="o">.</span><span class="n">_id</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer>
+        <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br>
+This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+    </footer>
+
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

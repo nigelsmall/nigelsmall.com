@@ -32,7 +32,7 @@
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../">
-              <img class="logo" src="../_static/py2neo.320x440.png" alt="Logo"/>
+              <img class="logo" src="../_static/py2neo-glossy.190x260.png" alt="Logo"/>
             </a></p>
   <h3><a href="../">Table Of Contents</a></h3>
   <ul>
@@ -85,20 +85,20 @@
   <div class="section" id="fundamentals">
 <h1>Fundamentals<a class="headerlink" href="#fundamentals" title="Permalink to this headline">¶</a></h1>
 <p>At the heart of py2neo are three core classes needed for every application:
-<a class="reference internal" href="../graphs_nodes_relationships/#py2neo.neo4j.Graph" title="py2neo.neo4j.Graph"><tt class="xref py py-class docutils literal"><span class="pre">Graph</span></tt></a>,
+<a class="reference internal" href="../graphs_nodes_relationships/#py2neo.neo4j.GraphDatabaseService" title="py2neo.neo4j.GraphDatabaseService"><tt class="xref py py-class docutils literal"><span class="pre">GraphDatabaseService</span></tt></a>,
 <a class="reference internal" href="../graphs_nodes_relationships/#py2neo.neo4j.Node" title="py2neo.neo4j.Node"><tt class="xref py py-class docutils literal"><span class="pre">Node</span></tt></a> and
 <a class="reference internal" href="../graphs_nodes_relationships/#py2neo.neo4j.Relationship" title="py2neo.neo4j.Relationship"><tt class="xref py py-class docutils literal"><span class="pre">Relationship</span></tt></a>. A
-<tt class="docutils literal"><span class="pre">Graph</span></tt> maintains a link to a Neo4j database via a root URI.
+<tt class="docutils literal"><span class="pre">GraphDatabaseService</span></tt> maintains a link to a Neo4j database via a root URI.
 For a default installation, this will be <cite>http://localhost:7474/db/data/</cite>
 (don&#8217;t forget the trailing slash!) and can be constructed as follows:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">py2neo</span> <span class="kn">import</span> <span class="n">neo4j</span>
-<span class="n">graph</span> <span class="o">=</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="s">&quot;http://localhost:7474/db/data/&quot;</span><span class="p">)</span>
+<span class="n">graph_db</span> <span class="o">=</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">GraphDatabaseService</span><span class="p">(</span><span class="s">&quot;http://localhost:7474/db/data/&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>A <tt class="docutils literal"><span class="pre">Graph</span></tt> object provides access to a number of core methods,
+<p>A <tt class="docutils literal"><span class="pre">GraphDatabaseService</span></tt> object provides access to a number of core methods,
 such as those to create and delete nodes, match relationships and manage
 indexes. One of the most useful methods is simply named
-<a class="reference internal" href="../graphs_nodes_relationships/#py2neo.neo4j.Graph.create" title="py2neo.neo4j.Graph.create"><tt class="xref py py-func docutils literal"><span class="pre">create</span></tt></a> and this can be
+<a class="reference internal" href="../graphs_nodes_relationships/#py2neo.neo4j.GraphDatabaseService.create" title="py2neo.neo4j.GraphDatabaseService.create"><tt class="xref py py-func docutils literal"><span class="pre">create</span></tt></a> and this can be
 used to easily build nodes and relationships within the graph. Imagine we
 wanted to model the following data:</p>
 <div class="highlight-python"><div class="highlight"><pre>(Bruce {&quot;name&quot;: &quot;Bruce Willis&quot;})
@@ -115,7 +115,7 @@ wanted to model the following data:</p>
 </div>
 <p>This could be carried out in a single <tt class="docutils literal"><span class="pre">create</span></tt> statement:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">py2neo</span> <span class="kn">import</span> <span class="n">node</span><span class="p">,</span> <span class="n">rel</span>
-<span class="n">die_hard</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+<span class="n">die_hard</span> <span class="o">=</span> <span class="n">graph_db</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
     <span class="n">node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Bruce Willis&quot;</span><span class="p">),</span>
     <span class="n">node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;John McClane&quot;</span><span class="p">),</span>
     <span class="n">node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Alan Rickman&quot;</span><span class="p">),</span>
@@ -146,27 +146,14 @@ for this but wherever possible, the <tt class="xref py py-func docutils literal"
 <tt class="xref py py-func docutils literal"><span class="pre">rel</span></tt> functions should be used.</p>
 <dl class="function">
 <dt id="py2neo.node">
-<tt class="descclassname">py2neo.</tt><tt class="descname">node</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#py2neo.node" title="Permalink to this definition">¶</a></dt>
-<dd><p>Cast the arguments provided to a <tt class="xref py py-class docutils literal"><span class="pre">neo4j.Node</span></tt>. The
-following general combinations are possible:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="n">Node</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="bp">None</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">Node</span><span class="o">.</span><span class="n">cast</span><span class="p">()</span>
-<span class="go">()</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">Node</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s">&quot;Person&quot;</span><span class="p">)</span>
-<span class="go">(:Person)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">Node</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Alice&quot;</span><span class="p">)</span>
-<span class="go">({name:&quot;Alice&quot;})</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">Node</span><span class="o">.</span><span class="n">cast</span><span class="p">(</span><span class="s">&quot;Person&quot;</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="s">&quot;Alice&quot;</span><span class="p">)</span>
-<span class="go">(:Person {name:&quot;Alice&quot;})</span>
-</pre></div>
-</div>
+<tt class="descname">node</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#py2neo.node" title="Permalink to this definition">¶</a></dt>
+<dd><p>Cast the arguments provided to a <tt class="xref py py-class docutils literal"><span class="pre">neo4j.Node</span></tt>. The following
+general combinations are possible:</p>
 <ul class="simple">
 <li><tt class="docutils literal"><span class="pre">node()</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">node(node_instance)</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">node(property_dict)</span></tt></li>
 <li><tt class="docutils literal"><span class="pre">node(**properties)</span></tt></li>
-<li><tt class="docutils literal"><span class="pre">node(int)</span></tt> -&gt; NodePointer(int)</li>
-<li><tt class="docutils literal"><span class="pre">node(None)</span></tt> -&gt; None</li>
 </ul>
 <p>If <tt class="xref py py-const docutils literal"><span class="pre">None</span></tt> is passed as the only argument, <tt class="xref py py-const docutils literal"><span class="pre">None</span></tt> is
 returned instead of a <tt class="docutils literal"><span class="pre">Node</span></tt> instance.</p>
@@ -185,7 +172,7 @@ returned instead of a <tt class="docutils literal"><span class="pre">Node</span>
 
 <dl class="function">
 <dt id="py2neo.rel">
-<tt class="descclassname">py2neo.</tt><tt class="descname">rel</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#py2neo.rel" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">rel</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#py2neo.rel" title="Permalink to this definition">¶</a></dt>
 <dd><p>Cast the arguments provided to a <tt class="xref py py-class docutils literal"><span class="pre">neo4j.Relationship</span></tt>. The
 following general combinations are possible:</p>
 <ul class="simple">
@@ -227,7 +214,7 @@ readability and are not considered future-proof.</p>
 same batch. In some circumstances, it is possible to use an integer reference
 to such a node and this makes it possible to carry out certain atomic
 operations, such as creating a relationship between two newly-created nodes:</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="n">graph</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">node</span><span class="p">({</span><span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;Alice&quot;</span><span class="p">}),</span> <span class="n">node</span><span class="p">({</span><span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;Bob&quot;</span><span class="p">}),</span> <span class="n">rel</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;KNOWS&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<div class="highlight-python"><div class="highlight"><pre><span class="n">graph_db</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">node</span><span class="p">({</span><span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;Alice&quot;</span><span class="p">}),</span> <span class="n">node</span><span class="p">({</span><span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;Bob&quot;</span><span class="p">}),</span> <span class="n">rel</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;KNOWS&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 </pre></div>
 </div>
 <p>Due to server limitations however, not all functions support this capability.
@@ -256,6 +243,26 @@ consider using a Cypher query or a batch request.</p>
 <p>HTTP requests may occasionally trigger an error response. The exceptions which
 may be raised are below and correspond to the equivalently named HTTP
 response statuses.</p>
+<dl class="class">
+<dt id="py2neo.exceptions.ClientError">
+<em class="property">class </em><tt class="descname">ClientError</tt><big>(</big><em>response</em><big>)</big><a class="reference internal" href="../_modules/py2neo/exceptions/#ClientError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.exceptions.ClientError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="py2neo.exceptions.ServerError">
+<em class="property">class </em><tt class="descname">ServerError</tt><big>(</big><em>response</em><big>)</big><a class="reference internal" href="../_modules/py2neo/exceptions/#ServerError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.exceptions.ServerError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="py2neo.exceptions.BatchError">
+<em class="property">class </em><tt class="descname">BatchError</tt><big>(</big><em>response</em><big>)</big><a class="reference internal" href="../_modules/py2neo/exceptions/#BatchError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.exceptions.BatchError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="class">
+<dt id="py2neo.exceptions.CypherError">
+<em class="property">class </em><tt class="descname">CypherError</tt><big>(</big><em>response</em><big>)</big><a class="reference internal" href="../_modules/py2neo/exceptions/#CypherError"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.exceptions.CypherError" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 </div>
 </div>
 

@@ -25,18 +25,18 @@
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="py2neo 1.6.4 documentation" href="../" />
     <link rel="next" title="Command Line Tool" href="../neotool/" />
-    <link rel="prev" title="Object-Graph Mapping (OGM)" href="../ogm/" /> 
+    <link rel="prev" title="Geoff" href="../geoff/" /> 
   </head>
   <body>
 
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../">
-              <img class="logo" src="../_static/py2neo.320x440.png" alt="Logo"/>
+              <img class="logo" src="../_static/py2neo-glossy.190x260.png" alt="Logo"/>
             </a></p>
   <h4>Previous topic</h4>
-  <p class="topless"><a href="../ogm/"
-                        title="previous chapter">Object-Graph Mapping (OGM)</a></p>
+  <p class="topless"><a href="../geoff/"
+                        title="previous chapter">Geoff</a></p>
   <h4>Next topic</h4>
   <p class="topless"><a href="../neotool/"
                         title="next chapter">Command Line Tool</a></p>
@@ -70,8 +70,97 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="date-modelling">
-<h1>Date Modelling<a class="headerlink" href="#date-modelling" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-py2neo.calendar">
+<span id="date-modelling"></span><h1>Date Modelling<a class="headerlink" href="#module-py2neo.calendar" title="Permalink to this headline">¶</a></h1>
+<p>The <cite>calendar</cite> module provides standardised date management functionality
+based on a calendar subgraph:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">py2neo</span> <span class="kn">import</span> <span class="n">neo4j</span>
+<span class="kn">from</span> <span class="nn">py2neo.calendar</span> <span class="kn">import</span> <span class="n">GregorianCalendar</span>
+
+<span class="n">graph_db</span> <span class="o">=</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">GraphDatabaseService</span><span class="p">()</span>
+<span class="n">time_index</span> <span class="o">=</span> <span class="n">graph_db</span><span class="o">.</span><span class="n">get_or_create_index</span><span class="p">(</span><span class="n">neo4j</span><span class="o">.</span><span class="n">Node</span><span class="p">,</span> <span class="s">&quot;TIME&quot;</span><span class="p">)</span>
+<span class="n">calendar</span> <span class="o">=</span> <span class="n">GregorianCalendar</span><span class="p">(</span><span class="n">time_index</span><span class="p">)</span>
+
+<span class="n">graph_db</span><span class="o">.</span><span class="n">create</span><span class="p">(</span>
+    <span class="p">{</span><span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;Alice&quot;</span><span class="p">},</span>
+    <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;BORN&quot;</span><span class="p">,</span> <span class="n">calendar</span><span class="o">.</span><span class="n">day</span><span class="p">(</span><span class="mi">1800</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)),</span>
+    <span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;DIED&quot;</span><span class="p">,</span> <span class="n">calendar</span><span class="o">.</span><span class="n">day</span><span class="p">(</span><span class="mi">1900</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">31</span><span class="p">)),</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+<p>The root calendar node is held within a dedicated node index which needs
+to be supplied to the calendar constructor.</p>
+<p>All dates managed by the <a class="reference internal" href="#py2neo.calendar.GregorianCalendar" title="py2neo.calendar.GregorianCalendar"><tt class="xref py py-class docutils literal"><span class="pre">GregorianCalendar</span></tt></a> class adhere to a
+hierarchy such as:</p>
+<div class="highlight-python"><div class="highlight"><pre>(CALENDAR)-[:YEAR]-&gt;(2000)-[:MONTH]-&gt;(12)-[:DAY]-&gt;(25)
+</pre></div>
+</div>
+<dl class="class">
+<dt id="py2neo.calendar.GregorianCalendar">
+<em class="property">class </em><tt class="descname">GregorianCalendar</tt><big>(</big><em>index</em><big>)</big><a class="reference internal" href="../_modules/py2neo/calendar/#GregorianCalendar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.calendar.GregorianCalendar" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<dl class="class">
+<dt id="py2neo.calendar.GregorianCalendar.Date">
+<em class="property">class </em><tt class="descname">Date</tt><big>(</big><em>year</em>, <em>month=None</em>, <em>day=None</em><big>)</big><a class="reference internal" href="../_modules/py2neo/calendar/#GregorianCalendar.Date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.calendar.GregorianCalendar.Date" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<dl class="method">
+<dt id="py2neo.calendar.GregorianCalendar.Date.get_node">
+<tt class="descname">get_node</tt><big>(</big><em>calendar</em><big>)</big><a class="reference internal" href="../_modules/py2neo/calendar/#GregorianCalendar.Date.get_node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.calendar.GregorianCalendar.Date.get_node" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
+<dl class="class">
+<dt id="py2neo.calendar.GregorianCalendar.DateRange">
+<em class="property">class </em><tt class="descclassname">GregorianCalendar.</tt><tt class="descname">DateRange</tt><big>(</big><em>start_date=None</em>, <em>end_date=None</em><big>)</big><a class="reference internal" href="../_modules/py2neo/calendar/#GregorianCalendar.DateRange"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.calendar.GregorianCalendar.DateRange" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+</dd></dl>
+
+<dl class="method">
+<dt id="py2neo.calendar.GregorianCalendar.calendar">
+<tt class="descclassname">GregorianCalendar.</tt><tt class="descname">calendar</tt><big>(</big><big>)</big><a class="reference internal" href="../_modules/py2neo/calendar/#GregorianCalendar.calendar"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.calendar.GregorianCalendar.calendar" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="py2neo.calendar.GregorianCalendar.date">
+<tt class="descclassname">GregorianCalendar.</tt><tt class="descname">date</tt><big>(</big><em>date</em><big>)</big><a class="reference internal" href="../_modules/py2neo/calendar/#GregorianCalendar.date"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.calendar.GregorianCalendar.date" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="py2neo.calendar.GregorianCalendar.date_range">
+<tt class="descclassname">GregorianCalendar.</tt><tt class="descname">date_range</tt><big>(</big><em>start_date=None</em>, <em>end_date=None</em><big>)</big><a class="reference internal" href="../_modules/py2neo/calendar/#GregorianCalendar.date_range"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.calendar.GregorianCalendar.date_range" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch the calendar node representing the date range defined by
+<cite>start_date</cite> and <cite>end_date</cite>. If either are unspecified, this defines an
+open-ended range. Either <cite>start_date</cite> or <cite>end_date</cite> must be specified.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="py2neo.calendar.GregorianCalendar.day">
+<tt class="descclassname">GregorianCalendar.</tt><tt class="descname">day</tt><big>(</big><em>year</em>, <em>month</em>, <em>day</em><big>)</big><a class="reference internal" href="../_modules/py2neo/calendar/#GregorianCalendar.day"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.calendar.GregorianCalendar.day" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch the calendar node representing the day specified by <cite>year</cite>,
+<cite>month</cite> and <cite>day</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="py2neo.calendar.GregorianCalendar.month">
+<tt class="descclassname">GregorianCalendar.</tt><tt class="descname">month</tt><big>(</big><em>year</em>, <em>month</em><big>)</big><a class="reference internal" href="../_modules/py2neo/calendar/#GregorianCalendar.month"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.calendar.GregorianCalendar.month" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch the calendar node representing the month specified by <cite>year</cite>
+and <cite>month</cite>.</p>
+</dd></dl>
+
+<dl class="method">
+<dt id="py2neo.calendar.GregorianCalendar.quarter">
+<tt class="descclassname">GregorianCalendar.</tt><tt class="descname">quarter</tt><big>(</big><em>year</em>, <em>quarter</em><big>)</big><a class="reference internal" href="../_modules/py2neo/calendar/#GregorianCalendar.quarter"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.calendar.GregorianCalendar.quarter" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="py2neo.calendar.GregorianCalendar.year">
+<tt class="descclassname">GregorianCalendar.</tt><tt class="descname">year</tt><big>(</big><em>year</em><big>)</big><a class="reference internal" href="../_modules/py2neo/calendar/#GregorianCalendar.year"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.calendar.GregorianCalendar.year" title="Permalink to this definition">¶</a></dt>
+<dd><p>Fetch the calendar node representing the year specified by <cite>year</cite>.</p>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 

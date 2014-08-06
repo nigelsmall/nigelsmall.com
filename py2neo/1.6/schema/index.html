@@ -32,7 +32,7 @@
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../">
-              <img class="logo" src="../_static/py2neo.320x440.png" alt="Logo"/>
+              <img class="logo" src="../_static/py2neo-glossy.190x260.png" alt="Logo"/>
             </a></p>
   <h4>Previous topic</h4>
   <p class="topless"><a href="../paths/"
@@ -74,31 +74,10 @@
 <h1>Schema<a class="headerlink" href="#schema" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="py2neo.neo4j.Schema">
-<em class="property">class </em><tt class="descclassname">py2neo.neo4j.</tt><tt class="descname">Schema</tt><big>(</big><em>uri=None</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Schema" title="Permalink to this definition">¶</a></dt>
+<em class="property">class </em><tt class="descname">Schema</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/py2neo/neo4j/#Schema"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.Schema" title="Permalink to this definition">¶</a></dt>
 <dd><dl class="method">
-<dt id="py2neo.neo4j.Schema.add_unique_constraint">
-<tt class="descname">add_unique_constraint</tt><big>(</big><em>label</em>, <em>property_key</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Schema.add_unique_constraint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Create an uniqueness constraint for a label.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>label</strong> &#8211; </li>
-<li><strong>property_key</strong> &#8211; </li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
 <dt id="py2neo.neo4j.Schema.create_index">
-<tt class="descname">create_index</tt><big>(</big><em>label</em>, <em>property_key</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Schema.create_index" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">create_index</tt><big>(</big><em>label</em>, <em>property_key</em><big>)</big><a class="reference internal" href="../_modules/py2neo/neo4j/#Schema.create_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.Schema.create_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Index a property key for a label.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -119,7 +98,7 @@
 
 <dl class="method">
 <dt id="py2neo.neo4j.Schema.drop_index">
-<tt class="descname">drop_index</tt><big>(</big><em>label</em>, <em>property_key</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Schema.drop_index" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">drop_index</tt><big>(</big><em>label</em>, <em>property_key</em><big>)</big><a class="reference internal" href="../_modules/py2neo/neo4j/#Schema.drop_index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.Schema.drop_index" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove label index for a given property key.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -140,7 +119,7 @@
 
 <dl class="method">
 <dt id="py2neo.neo4j.Schema.get_indexed_property_keys">
-<tt class="descname">get_indexed_property_keys</tt><big>(</big><em>label</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Schema.get_indexed_property_keys" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_indexed_property_keys</tt><big>(</big><em>label</em><big>)</big><a class="reference internal" href="../_modules/py2neo/neo4j/#Schema.get_indexed_property_keys"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.Schema.get_indexed_property_keys" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch a list of indexed property keys for a label.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -149,43 +128,6 @@
 <tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>label</strong> &#8211; </td>
 </tr>
 <tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="py2neo.neo4j.Schema.get_unique_constraints">
-<tt class="descname">get_unique_constraints</tt><big>(</big><em>label</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Schema.get_unique_constraints" title="Permalink to this definition">¶</a></dt>
-<dd><p>Fetch a list of uniqueness constraints for a label.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>label</strong> &#8211; </td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"></td>
-</tr>
-</tbody>
-</table>
-</dd></dl>
-
-<dl class="method">
-<dt id="py2neo.neo4j.Schema.remove_unique_constraint">
-<tt class="descname">remove_unique_constraint</tt><big>(</big><em>label</em>, <em>property_key</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Schema.remove_unique_constraint" title="Permalink to this definition">¶</a></dt>
-<dd><p>Remove uniqueness constraint for a given property key.</p>
-<table class="docutils field-list" frame="void" rules="none">
-<col class="field-name" />
-<col class="field-body" />
-<tbody valign="top">
-<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
-<li><strong>label</strong> &#8211; </li>
-<li><strong>property_key</strong> &#8211; </li>
-</ul>
-</td>
-</tr>
-<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last"></p>
-</td>
 </tr>
 </tbody>
 </table>

@@ -1,0 +1,335 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>py2neo.calendar &mdash; py2neo 1.6.4 documentation</title>
+    
+    <link rel="stylesheet" href="../../../_static/nige.css" type="text/css" />
+    <link rel="stylesheet" href="../../../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../../../',
+        VERSION:     '1.6.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../../../_static/jquery.js"></script>
+    <script type="text/javascript" src="../../../_static/underscore.js"></script>
+    <script type="text/javascript" src="../../../_static/doctools.js"></script>
+    <link rel="top" title="py2neo 1.6.4 documentation" href="../../../" />
+    <link rel="up" title="py2neo" href="../" /> 
+  </head>
+  <body>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../../../">
+              <img class="logo" src="../../../_static/py2neo-glossy.190x260.png" alt="Logo"/>
+            </a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../../../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+    <header>
+    <div class="title"><a href="/">Nigel Small</a></div>
+    <div class="contact">
+    <a href="http://twitter.com/neonige"><img src="../../../_static/twitter_mark.png"></a>
+    <a href="http://github.com/nigelsmall"><img src="../../../_static/github_mark.png"></a>
+    </div>
+    </header>
+    <main>
+        
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <h1>Source code for py2neo.calendar</h1><div class="highlight"><pre>
+<span class="c">#!/usr/bin/env python</span>
+<span class="c"># -*- coding: utf-8 -*-</span>
+
+<span class="c"># Copyright 2011-2014, Nigel Small</span>
+<span class="c">#</span>
+<span class="c"># Licensed under the Apache License, Version 2.0 (the &quot;License&quot;);</span>
+<span class="c"># you may not use this file except in compliance with the License.</span>
+<span class="c"># You may obtain a copy of the License at</span>
+<span class="c">#</span>
+<span class="c">#     http://www.apache.org/licenses/LICENSE-2.0</span>
+<span class="c">#</span>
+<span class="c"># Unless required by applicable law or agreed to in writing, software</span>
+<span class="c"># distributed under the License is distributed on an &quot;AS IS&quot; BASIS,</span>
+<span class="c"># WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.</span>
+<span class="c"># See the License for the specific language governing permissions and</span>
+<span class="c"># limitations under the License.</span>
+
+
+<span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">The `calendar` module provides standardised date management functionality</span>
+<span class="sd">based on a calendar subgraph::</span>
+
+<span class="sd">    from py2neo import neo4j</span>
+<span class="sd">    from py2neo.calendar import GregorianCalendar</span>
+
+<span class="sd">    graph_db = neo4j.GraphDatabaseService()</span>
+<span class="sd">    time_index = graph_db.get_or_create_index(neo4j.Node, &quot;TIME&quot;)</span>
+<span class="sd">    calendar = GregorianCalendar(time_index)</span>
+
+<span class="sd">    graph_db.create(</span>
+<span class="sd">        {&quot;name&quot;: &quot;Alice&quot;},</span>
+<span class="sd">        (0, &quot;BORN&quot;, calendar.day(1800, 1, 1)),</span>
+<span class="sd">        (0, &quot;DIED&quot;, calendar.day(1900, 12, 31)),</span>
+<span class="sd">    )</span>
+
+<span class="sd">The root calendar node is held within a dedicated node index which needs</span>
+<span class="sd">to be supplied to the calendar constructor.</span>
+
+<span class="sd">All dates managed by the :py:class:`GregorianCalendar` class adhere to a</span>
+<span class="sd">hierarchy such as::</span>
+
+<span class="sd">    (CALENDAR)-[:YEAR]-&gt;(2000)-[:MONTH]-&gt;(12)-[:DAY]-&gt;(25)</span>
+
+<span class="sd">&quot;&quot;&quot;</span>
+
+
+<span class="kn">from</span> <span class="nn">__future__</span> <span class="kn">import</span> <span class="n">unicode_literals</span>
+
+<span class="kn">from</span> <span class="nn">datetime</span> <span class="kn">import</span> <span class="n">date</span> <span class="k">as</span> <span class="n">_date</span>
+
+<span class="kn">from</span> <span class="nn">.neo4j</span> <span class="kn">import</span> <span class="n">CypherQuery</span>
+
+
+<div class="viewcode-block" id="GregorianCalendar"><a class="viewcode-back" href="../../../calendar/#py2neo.calendar.GregorianCalendar">[docs]</a><span class="k">class</span> <span class="nc">GregorianCalendar</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+<div class="viewcode-block" id="GregorianCalendar.Date"><a class="viewcode-back" href="../../../calendar/#py2neo.calendar.GregorianCalendar.Date">[docs]</a>    <span class="k">class</span> <span class="nc">Date</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">day</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">year</span> <span class="ow">and</span> <span class="n">month</span> <span class="ow">and</span> <span class="n">day</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_date</span> <span class="o">=</span> <span class="n">_date</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="n">day</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_resolution</span> <span class="o">=</span> <span class="mi">3</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="o">=</span> <span class="n">year</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">month</span> <span class="o">=</span> <span class="n">month</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">day</span> <span class="o">=</span> <span class="n">day</span>
+            <span class="k">elif</span> <span class="n">year</span> <span class="ow">and</span> <span class="n">month</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_date</span> <span class="o">=</span> <span class="n">_date</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_resolution</span> <span class="o">=</span> <span class="mi">2</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="o">=</span> <span class="n">year</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">month</span> <span class="o">=</span> <span class="n">month</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">day</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">elif</span> <span class="n">year</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_date</span> <span class="o">=</span> <span class="n">_date</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_resolution</span> <span class="o">=</span> <span class="mi">1</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="o">=</span> <span class="n">year</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">month</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">day</span> <span class="o">=</span> <span class="bp">None</span>
+
+        <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">day</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s">&quot;{y:04d}-{m:02d}-{d:02d}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">month</span><span class="p">,</span> <span class="n">d</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">day</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s">&quot;{y:04d}-{m:02d}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">m</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">month</span>
+                <span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">:</span>
+                <span class="k">return</span> <span class="s">&quot;{y:04d}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span>
+                    <span class="n">y</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span>
+                <span class="p">)</span>
+
+<div class="viewcode-block" id="GregorianCalendar.Date.get_node"><a class="viewcode-back" href="../../../calendar/#py2neo.calendar.GregorianCalendar.Date.get_node">[docs]</a>        <span class="k">def</span> <span class="nf">get_node</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">calendar</span><span class="p">):</span>
+            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">day</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">calendar</span><span class="o">.</span><span class="n">day</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">day</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">calendar</span><span class="o">.</span><span class="n">month</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">calendar</span><span class="o">.</span><span class="n">year</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">()</span>
+</div></div>
+<div class="viewcode-block" id="GregorianCalendar.DateRange"><a class="viewcode-back" href="../../../calendar/#py2neo.calendar.GregorianCalendar.DateRange">[docs]</a>    <span class="k">class</span> <span class="nc">DateRange</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+        <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">start_date</span> <span class="ow">and</span> <span class="n">end_date</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span> <span class="o">=</span> <span class="n">GregorianCalendar</span><span class="o">.</span><span class="n">Date</span><span class="p">(</span><span class="o">*</span><span class="n">start_date</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span> <span class="o">=</span> <span class="n">GregorianCalendar</span><span class="o">.</span><span class="n">Date</span><span class="p">(</span><span class="o">*</span><span class="n">end_date</span><span class="p">)</span>
+                <span class="c"># check both dates are compatible</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span><span class="o">.</span><span class="n">_resolution</span> <span class="o">!=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span><span class="o">.</span><span class="n">_resolution</span><span class="p">:</span>
+                    <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Range start and end dates are specified &quot;</span>
+                                     <span class="s">&quot;at different resolutions&quot;</span><span class="p">)</span>
+                <span class="c"># ensure dates are correctly ordered</span>
+                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span><span class="o">.</span><span class="n">_date</span> <span class="o">&gt;</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span><span class="o">.</span><span class="n">_date</span><span class="p">:</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span>
+            <span class="k">elif</span> <span class="n">start_date</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span> <span class="o">=</span> <span class="n">GregorianCalendar</span><span class="o">.</span><span class="n">Date</span><span class="p">(</span><span class="o">*</span><span class="n">start_date</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span> <span class="o">=</span> <span class="bp">None</span>
+            <span class="k">elif</span> <span class="n">end_date</span><span class="p">:</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">start_date</span> <span class="o">=</span> <span class="bp">None</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">end_date</span> <span class="o">=</span> <span class="n">GregorianCalendar</span><span class="o">.</span><span class="n">Date</span><span class="p">(</span><span class="o">*</span><span class="n">end_date</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Either start date or end date must &quot;</span>
+                                 <span class="s">&quot;be specified for a date range&quot;</span><span class="p">)</span>
+</div>
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">index</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Create a new calendar instance pointed to by the index provided.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_index</span> <span class="o">=</span> <span class="n">index</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_graph_db</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="o">.</span><span class="n">service_root</span><span class="o">.</span><span class="n">graph_db</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_calendar</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_index</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span><span class="s">&quot;calendar&quot;</span><span class="p">,</span> <span class="s">&quot;Gregorian&quot;</span><span class="p">,</span> <span class="p">{})</span>
+
+<div class="viewcode-block" id="GregorianCalendar.calendar"><a class="viewcode-back" href="../../../calendar/#py2neo.calendar.GregorianCalendar.calendar">[docs]</a>    <span class="k">def</span> <span class="nf">calendar</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calendar</span>
+</div>
+<div class="viewcode-block" id="GregorianCalendar.day"><a class="viewcode-back" href="../../../calendar/#py2neo.calendar.GregorianCalendar.day">[docs]</a>    <span class="k">def</span> <span class="nf">day</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="n">day</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Fetch the calendar node representing the day specified by `year`,</span>
+<span class="sd">        `month` and `day`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">GregorianCalendar</span><span class="o">.</span><span class="n">Date</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">,</span> <span class="n">day</span><span class="p">)</span>
+        <span class="n">date_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calendar</span><span class="o">.</span><span class="n">get_or_create_path</span><span class="p">(</span>
+            <span class="s">&quot;YEAR&quot;</span><span class="p">,</span>  <span class="p">{</span><span class="s">&quot;year&quot;</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">year</span><span class="p">},</span>
+            <span class="s">&quot;MONTH&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;year&quot;</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="s">&quot;month&quot;</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">month</span><span class="p">},</span>
+            <span class="s">&quot;DAY&quot;</span><span class="p">,</span>   <span class="p">{</span><span class="s">&quot;year&quot;</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="s">&quot;month&quot;</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">month</span><span class="p">,</span> <span class="s">&quot;day&quot;</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">day</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">date_path</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="GregorianCalendar.month"><a class="viewcode-back" href="../../../calendar/#py2neo.calendar.GregorianCalendar.month">[docs]</a>    <span class="k">def</span> <span class="nf">month</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Fetch the calendar node representing the month specified by `year`</span>
+<span class="sd">        and `month`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">GregorianCalendar</span><span class="o">.</span><span class="n">Date</span><span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="n">month</span><span class="p">)</span>
+        <span class="n">date_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calendar</span><span class="o">.</span><span class="n">get_or_create_path</span><span class="p">(</span>
+            <span class="s">&quot;YEAR&quot;</span><span class="p">,</span>  <span class="p">{</span><span class="s">&quot;year&quot;</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">year</span><span class="p">},</span>
+            <span class="s">&quot;MONTH&quot;</span><span class="p">,</span> <span class="p">{</span><span class="s">&quot;year&quot;</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="s">&quot;month&quot;</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">month</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">date_path</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="GregorianCalendar.year"><a class="viewcode-back" href="../../../calendar/#py2neo.calendar.GregorianCalendar.year">[docs]</a>    <span class="k">def</span> <span class="nf">year</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">year</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Fetch the calendar node representing the year specified by `year`.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="n">d</span> <span class="o">=</span> <span class="n">GregorianCalendar</span><span class="o">.</span><span class="n">Date</span><span class="p">(</span><span class="n">year</span><span class="p">)</span>
+        <span class="n">date_path</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calendar</span><span class="o">.</span><span class="n">get_or_create_path</span><span class="p">(</span>
+            <span class="s">&quot;YEAR&quot;</span><span class="p">,</span>  <span class="p">{</span><span class="s">&quot;year&quot;</span><span class="p">:</span> <span class="n">d</span><span class="o">.</span><span class="n">year</span><span class="p">},</span>
+        <span class="p">)</span>
+        <span class="k">return</span> <span class="n">date_path</span><span class="o">.</span><span class="n">nodes</span><span class="p">[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+</div>
+<div class="viewcode-block" id="GregorianCalendar.date"><a class="viewcode-back" href="../../../calendar/#py2neo.calendar.GregorianCalendar.date">[docs]</a>    <span class="k">def</span> <span class="nf">date</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">date</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">GregorianCalendar</span><span class="o">.</span><span class="n">Date</span><span class="p">(</span><span class="o">*</span><span class="n">date</span><span class="p">)</span><span class="o">.</span><span class="n">get_node</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GregorianCalendar.date_range"><a class="viewcode-back" href="../../../calendar/#py2neo.calendar.GregorianCalendar.date_range">[docs]</a>    <span class="k">def</span> <span class="nf">date_range</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">start_date</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">end_date</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="sd">&quot;&quot;&quot; Fetch the calendar node representing the date range defined by</span>
+<span class="sd">        `start_date` and `end_date`. If either are unspecified, this defines an</span>
+<span class="sd">        open-ended range. Either `start_date` or `end_date` must be specified.</span>
+<span class="sd">        &quot;&quot;&quot;</span>
+        <span class="c">#                         (CAL)</span>
+        <span class="c">#                           |</span>
+        <span class="c">#                       [:RANGE]</span>
+        <span class="c">#                           |</span>
+        <span class="c">#                           v</span>
+        <span class="c"># (START)&lt;-[:START_DATE]-(RANGE)-[:END_DATE]-&gt;(END)</span>
+        <span class="n">range_</span> <span class="o">=</span> <span class="n">GregorianCalendar</span><span class="o">.</span><span class="n">DateRange</span><span class="p">(</span><span class="n">start_date</span><span class="p">,</span> <span class="n">end_date</span><span class="p">)</span>
+        <span class="n">start</span><span class="p">,</span> <span class="n">end</span> <span class="o">=</span> <span class="n">range_</span><span class="o">.</span><span class="n">start_date</span><span class="p">,</span> <span class="n">range_</span><span class="o">.</span><span class="n">end_date</span>
+        <span class="k">if</span> <span class="n">start</span> <span class="ow">and</span> <span class="n">end</span><span class="p">:</span>
+            <span class="c"># if start and end are equal, return the day node instead</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">start</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">start</span><span class="o">.</span><span class="n">month</span><span class="p">,</span> <span class="n">start</span><span class="o">.</span><span class="n">day</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="n">end</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">end</span><span class="o">.</span><span class="n">month</span><span class="p">,</span> <span class="n">end</span><span class="o">.</span><span class="n">day</span><span class="p">):</span>
+                <span class="k">return</span> <span class="n">start</span><span class="o">.</span><span class="n">get_node</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span>
+            <span class="k">if</span> <span class="p">(</span><span class="n">start</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">start</span><span class="o">.</span><span class="n">month</span><span class="p">)</span> <span class="o">==</span> <span class="p">(</span><span class="n">end</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">end</span><span class="o">.</span><span class="n">month</span><span class="p">):</span>
+                <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">month</span><span class="p">(</span><span class="n">start</span><span class="o">.</span><span class="n">year</span><span class="p">,</span> <span class="n">start</span><span class="o">.</span><span class="n">month</span><span class="p">)</span>
+            <span class="k">elif</span> <span class="n">start</span><span class="o">.</span><span class="n">year</span> <span class="o">==</span> <span class="n">end</span><span class="o">.</span><span class="n">year</span><span class="p">:</span>
+                <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">year</span><span class="p">(</span><span class="n">start</span><span class="o">.</span><span class="n">year</span><span class="p">)</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">root</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calendar</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s">                START z=node({z}), s=node({s}), e=node({e})</span>
+<span class="s">                CREATE UNIQUE (s)&lt;-[:START_DATE]-(r {r})-[:END_DATE]-&gt;(e),</span>
+<span class="s">                              (z)-[:DATE_RANGE]-&gt;(r {r})</span>
+<span class="s">                RETURN r</span>
+<span class="s">            &quot;&quot;&quot;</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&quot;z&quot;</span><span class="p">:</span> <span class="n">root</span><span class="o">.</span><span class="n">_id</span><span class="p">,</span>
+                <span class="s">&quot;s&quot;</span><span class="p">:</span> <span class="n">start</span><span class="o">.</span><span class="n">get_node</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_id</span><span class="p">,</span>
+                <span class="s">&quot;e&quot;</span><span class="p">:</span> <span class="n">end</span><span class="o">.</span><span class="n">get_node</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_id</span><span class="p">,</span>
+                <span class="s">&quot;r&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s">&quot;start_date&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">start</span><span class="p">),</span>
+                    <span class="s">&quot;end_date&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">end</span><span class="p">),</span>
+                <span class="p">},</span>
+            <span class="p">}</span>
+        <span class="k">elif</span> <span class="n">start</span><span class="p">:</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s">                START z=node({z}), s=node({s})</span>
+<span class="s">                CREATE UNIQUE (s)&lt;-[:START_DATE]-(r {r}),</span>
+<span class="s">                              (z)-[:DATE_RANGE]-&gt;(r {r})</span>
+<span class="s">                RETURN r</span>
+<span class="s">            &quot;&quot;&quot;</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&quot;z&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calendar</span><span class="o">.</span><span class="n">_id</span><span class="p">,</span>
+                <span class="s">&quot;s&quot;</span><span class="p">:</span> <span class="n">start</span><span class="o">.</span><span class="n">get_node</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_id</span><span class="p">,</span>
+                <span class="s">&quot;r&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s">&quot;start_date&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">start</span><span class="p">),</span>
+                <span class="p">},</span>
+            <span class="p">}</span>
+        <span class="k">elif</span> <span class="n">end</span><span class="p">:</span>
+            <span class="n">query</span> <span class="o">=</span> <span class="s">&quot;&quot;&quot;</span><span class="se">\</span>
+<span class="s">                START z=node({z}), e=node({e})</span>
+<span class="s">                CREATE UNIQUE (r {r})-[:END_DATE]-&gt;(e),</span>
+<span class="s">                              (z)-[:DATE_RANGE]-&gt;(r {r})</span>
+<span class="s">                RETURN r</span>
+<span class="s">            &quot;&quot;&quot;</span>
+            <span class="n">params</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="s">&quot;z&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">_calendar</span><span class="o">.</span><span class="n">_id</span><span class="p">,</span>
+                <span class="s">&quot;e&quot;</span><span class="p">:</span> <span class="n">end</span><span class="o">.</span><span class="n">get_node</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span><span class="o">.</span><span class="n">_id</span><span class="p">,</span>
+                <span class="s">&quot;r&quot;</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s">&quot;end_date&quot;</span><span class="p">:</span> <span class="nb">str</span><span class="p">(</span><span class="n">end</span><span class="p">),</span>
+                <span class="p">},</span>
+            <span class="p">}</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;Either start or end date must be supplied &quot;</span>
+                             <span class="s">&quot;for a date range&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="n">CypherQuery</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_graph_db</span><span class="p">,</span> <span class="n">query</span><span class="p">)</span><span class="o">.</span><span class="n">execute_one</span><span class="p">(</span><span class="o">**</span><span class="n">params</span><span class="p">)</span>
+</div>
+<div class="viewcode-block" id="GregorianCalendar.quarter"><a class="viewcode-back" href="../../../calendar/#py2neo.calendar.GregorianCalendar.quarter">[docs]</a>    <span class="k">def</span> <span class="nf">quarter</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">year</span><span class="p">,</span> <span class="n">quarter</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">quarter</span> <span class="o">==</span> <span class="mi">1</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_range</span><span class="p">((</span><span class="n">year</span><span class="p">,</span> <span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="mi">3</span><span class="p">,</span> <span class="mi">31</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">quarter</span> <span class="o">==</span> <span class="mi">2</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_range</span><span class="p">((</span><span class="n">year</span><span class="p">,</span> <span class="mi">4</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="mi">6</span><span class="p">,</span> <span class="mi">30</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">quarter</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_range</span><span class="p">((</span><span class="n">year</span><span class="p">,</span> <span class="mi">7</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="mi">9</span><span class="p">,</span> <span class="mi">30</span><span class="p">))</span>
+        <span class="k">elif</span> <span class="n">quarter</span> <span class="o">==</span> <span class="mi">4</span><span class="p">:</span>
+            <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">date_range</span><span class="p">((</span><span class="n">year</span><span class="p">,</span> <span class="mi">10</span><span class="p">,</span> <span class="mi">1</span><span class="p">),</span> <span class="p">(</span><span class="n">year</span><span class="p">,</span> <span class="mi">12</span><span class="p">,</span> <span class="mi">31</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s">&quot;quarter must be in 1..4&quot;</span><span class="p">)</span></div></div>
+</pre></div>
+
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer>
+        <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br>
+This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+    </footer>
+
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

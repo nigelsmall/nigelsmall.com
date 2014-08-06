@@ -32,8 +32,18 @@
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../">
-              <img class="logo" src="../_static/py2neo.320x440.png" alt="Logo"/>
+              <img class="logo" src="../_static/py2neo-glossy.190x260.png" alt="Logo"/>
             </a></p>
+  <h3><a href="../">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Deprecated Features</a><ul>
+<li><a class="reference internal" href="#cypher">Cypher</a></li>
+<li><a class="reference internal" href="#geoff">Geoff</a></li>
+<li><a class="reference internal" href="#writebatch">WriteBatch</a></li>
+</ul>
+</li>
+</ul>
+
   <h4>Previous topic</h4>
   <p class="topless"><a href="../neotool/"
                         title="previous chapter">Command Line Tool</a></p>
@@ -72,7 +82,58 @@
             
   <div class="section" id="deprecated-features">
 <h1>Deprecated Features<a class="headerlink" href="#deprecated-features" title="Permalink to this headline">¶</a></h1>
-<p>TODO</p>
+<p>All features deprecated in py2neo 1.5 and earlier versions have now been
+removed. The list below shows all features deprecated in version 1.6.</p>
+<div class="section" id="cypher">
+<h2>Cypher<a class="headerlink" href="#cypher" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="geoff">
+<h2>Geoff<a class="headerlink" href="#geoff" title="Permalink to this headline">¶</a></h2>
+<p>The entire geoff.py module has been deprecated in py2neo 1.6.2 and will be
+removed completely in 1.7.0.</p>
+<p>Geoff should now be used via the <a class="reference external" href="http://nigelsmall.com/load2neo">load2neo</a>
+extension that provides more efficient and more consistent behaviour. This
+facility can be accessed client-side by using the <a class="reference external" href="../graphs_nodes_relationships/#py2neo.neo4j.GraphDatabaseService.load_geoff">load_geoff</a>
+method when the extension has been installed on the server.</p>
+</div>
+<div class="section" id="writebatch">
+<h2>WriteBatch<a class="headerlink" href="#writebatch" title="Permalink to this headline">¶</a></h2>
+<dl class="method">
+<dt id="py2neo.neo4j.WriteBatch.get_or_create">
+<tt class="descclassname">WriteBatch.</tt><tt class="descname">get_or_create</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/py2neo/neo4j/#WriteBatch.get_or_create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.WriteBatch.get_or_create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Use the abstract supplied to create a new relationship if one does
+not already exist.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>rel_abstract</strong> &#8211; relationship abstract to be fetched or created</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="py2neo.neo4j.WriteBatch.get_or_add_indexed_node">
+<tt class="descclassname">WriteBatch.</tt><tt class="descname">get_or_add_indexed_node</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/py2neo/neo4j/#WriteBatch.get_or_add_indexed_node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.WriteBatch.get_or_add_indexed_node" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="py2neo.neo4j.WriteBatch.get_or_add_indexed_relationship">
+<tt class="descclassname">WriteBatch.</tt><tt class="descname">get_or_add_indexed_relationship</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/py2neo/neo4j/#WriteBatch.get_or_add_indexed_relationship"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.WriteBatch.get_or_add_indexed_relationship" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="py2neo.neo4j.WriteBatch.remove_indexed_node">
+<tt class="descclassname">WriteBatch.</tt><tt class="descname">remove_indexed_node</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/py2neo/neo4j/#WriteBatch.remove_indexed_node"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.WriteBatch.remove_indexed_node" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="method">
+<dt id="py2neo.neo4j.WriteBatch.remove_indexed_relationship">
+<tt class="descclassname">WriteBatch.</tt><tt class="descname">remove_indexed_relationship</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="reference internal" href="../_modules/py2neo/neo4j/#WriteBatch.remove_indexed_relationship"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.WriteBatch.remove_indexed_relationship" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</div>
 </div>
 
 

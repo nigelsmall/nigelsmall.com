@@ -32,7 +32,7 @@
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../">
-              <img class="logo" src="../_static/py2neo.320x440.png" alt="Logo"/>
+              <img class="logo" src="../_static/py2neo-glossy.190x260.png" alt="Logo"/>
             </a></p>
   <h3><a href="../">Table Of Contents</a></h3>
   <ul>
@@ -96,8 +96,8 @@
 <h3>Using the Regular REST API<a class="headerlink" href="#using-the-regular-rest-api" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">py2neo</span> <span class="kn">import</span> <span class="n">neo4j</span>
 
-<span class="n">graph</span> <span class="o">=</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
-<span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">ab</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Alice&quot;</span><span class="p">),</span> <span class="n">node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Bob&quot;</span><span class="p">),</span> <span class="n">rel</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;KNOWS&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
+<span class="n">graph_db</span> <span class="o">=</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">GraphDatabaseService</span><span class="p">()</span>
+<span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">ab</span> <span class="o">=</span> <span class="n">graph_db</span><span class="o">.</span><span class="n">create</span><span class="p">(</span><span class="n">node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Alice&quot;</span><span class="p">),</span> <span class="n">node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Bob&quot;</span><span class="p">),</span> <span class="n">rel</span><span class="p">(</span><span class="mi">0</span><span class="p">,</span> <span class="s">&quot;KNOWS&quot;</span><span class="p">,</span> <span class="mi">1</span><span class="p">))</span>
 </pre></div>
 </div>
 </div>
@@ -105,7 +105,7 @@
 <h3>Using Cypher<a class="headerlink" href="#using-cypher" title="Permalink to this headline">¶</a></h3>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">py2neo</span> <span class="kn">import</span> <span class="n">neo4j</span>
 
-<span class="n">graph</span> <span class="o">=</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+<span class="n">graph_db</span> <span class="o">=</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">GraphDatabaseService</span><span class="p">()</span>
 <span class="n">query</span> <span class="o">=</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">CypherQuery</span><span class="p">(</span><span class="n">db</span><span class="p">,</span> <span class="s">&quot;CREATE (a {name:{name_a}})-[ab:KNOWS]-&gt;(b {name:{name_b}})&quot;</span>
                               <span class="s">&quot;RETURN a, b, ab&quot;</span><span class="p">)</span>
 <span class="n">a</span><span class="p">,</span> <span class="n">b</span><span class="p">,</span> <span class="n">ab</span> <span class="o">=</span> <span class="n">query</span><span class="o">.</span><span class="n">execute</span><span class="p">(</span><span class="n">name_a</span><span class="o">=</span><span class="s">&quot;Alice&quot;</span><span class="p">,</span> <span class="n">name_b</span><span class="o">=</span><span class="s">&quot;Bob&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">data</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
@@ -118,11 +118,11 @@
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># some example source data</span>
 <span class="n">records</span> <span class="o">=</span> <span class="p">[(</span><span class="mi">101</span><span class="p">,</span> <span class="s">&quot;Alice&quot;</span><span class="p">),</span> <span class="p">(</span><span class="mi">102</span><span class="p">,</span> <span class="s">&quot;Bob&quot;</span><span class="p">),</span> <span class="p">(</span><span class="mi">103</span><span class="p">,</span> <span class="s">&quot;Carol&quot;</span><span class="p">)]</span>
 
-<span class="n">graph</span> <span class="o">=</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="s">&quot;http://localhost:7474/db/data/&quot;</span><span class="p">)</span>
-<span class="n">batch</span> <span class="o">=</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">WriteBatch</span><span class="p">(</span><span class="n">graph</span><span class="p">)</span>  <span class="c"># batch is linked to graph database</span>
+<span class="n">graph_db</span> <span class="o">=</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">GraphDatabaseService</span><span class="p">(</span><span class="s">&quot;http://localhost:7474/db/data/&quot;</span><span class="p">)</span>
+<span class="n">batch</span> <span class="o">=</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">WriteBatch</span><span class="p">(</span><span class="n">graph_db</span><span class="p">)</span>  <span class="c"># batch is linked to graph database</span>
 
 <span class="k">for</span> <span class="n">emp_no</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">records</span><span class="p">:</span>
-    <span class="c"># get_or_create_indexed_node is one of many batch methods available</span>
+    <span class="c"># get_or_create_indexes_node is one of many batch methods available</span>
     <span class="n">batch</span><span class="o">.</span><span class="n">get_or_create_indexed_node</span><span class="p">(</span><span class="s">&quot;Employees&quot;</span><span class="p">,</span> <span class="s">&quot;emp_no&quot;</span><span class="p">,</span> <span class="n">emp_no</span><span class="p">,</span> <span class="p">{</span>
         <span class="s">&quot;emp_no&quot;</span><span class="p">:</span> <span class="n">emp_no</span><span class="p">,</span> <span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="n">name</span>
     <span class="p">})</span>
@@ -141,12 +141,17 @@ graph database service (<a class="reference external" href="http://localhost:747
 </div>
 <p>A default Neo4j instance will listen on port 7474. Therefore, for such a
 default installation, the <tt class="docutils literal"><span class="pre">DEFAULT_URI</span></tt> can be used:</p>
+<dl class="attribute">
+<dt id="py2neo.neo4j.DEFAULT_URI">
+<tt class="descclassname">neo4j.</tt><tt class="descname">DEFAULT_URI</tt><em class="property"> = 'http://localhost:7474'</em><a class="headerlink" href="#py2neo.neo4j.DEFAULT_URI" title="Permalink to this definition">¶</a></dt>
+<dd></dd></dl>
+
 <p>This default will be used if the URI is omitted from construction of a new
 <tt class="docutils literal"><span class="pre">ServiceRoot</span></tt> instance:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="n">service_root</span> <span class="o">=</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">ServiceRoot</span><span class="p">()</span>
 </pre></div>
 </div>
-<p>If the URI is omitted from a <tt class="docutils literal"><span class="pre">Graph</span></tt> constructor, the default
+<p>If the URI is omitted from a <tt class="docutils literal"><span class="pre">GraphDatabaseService</span></tt> constructor, the default
 will be discovered via the default service root. Therefore this only uses the
 <cite>DEFAULT_URI</cite> indirectly.</p>
 </div>
@@ -154,18 +159,18 @@ will be discovered via the default service root. Therefore this only uses the
 <h2>Authentication<a class="headerlink" href="#authentication" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="py2neo.neo4j.authenticate">
-<tt class="descclassname">py2neo.neo4j.</tt><tt class="descname">authenticate</tt><big>(</big><em>host_port</em>, <em>user_name</em>, <em>password</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.authenticate" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">authenticate</tt><big>(</big><em>host_port</em>, <em>user_name</em>, <em>password</em><big>)</big><a class="reference internal" href="../_modules/py2neo/neo4j/#authenticate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.authenticate" title="Permalink to this definition">¶</a></dt>
 <dd><p>Set HTTP basic authentication values for specified <cite>host_port</cite>. The
 code below shows a simple example:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># set up authentication parameters</span>
 <span class="n">neo4j</span><span class="o">.</span><span class="n">authenticate</span><span class="p">(</span><span class="s">&quot;camelot:7474&quot;</span><span class="p">,</span> <span class="s">&quot;arthur&quot;</span><span class="p">,</span> <span class="s">&quot;excalibur&quot;</span><span class="p">)</span>
 
 <span class="c"># connect to authenticated graph database</span>
-<span class="n">graph</span> <span class="o">=</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="s">&quot;http://camelot:7474/db/data/&quot;</span><span class="p">)</span>
+<span class="n">graph_db</span> <span class="o">=</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">GraphDatabaseService</span><span class="p">(</span><span class="s">&quot;http://camelot:7474/db/data/&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
-<p>Note: a <cite>host_port</cite> can be either a server name or a server name and port
-number but must match exactly that used within the Graph
+<p>Note: a <cite>netloc</cite> can be either a server name or a server name and port
+number but must match exactly that used within the GraphDatabaseService
 URI.</p>
 <table class="docutils field-list" frame="void" rules="none">
 <col class="field-name" />
@@ -186,7 +191,7 @@ URI.</p>
 <p>As of py2neo 1.6.1, authentication can also be supplied through any resource
 URI, e.g.:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">py2neo</span> <span class="kn">import</span> <span class="n">neo4j</span>
-<span class="n">graph</span> <span class="o">=</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">Graph</span><span class="p">(</span><span class="s">&quot;http://arthur:excalibur@localhost:7474/db/data/&quot;</span><span class="p">)</span>
+<span class="n">graph_db</span> <span class="o">=</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">GraphDatabaseService</span><span class="p">(</span><span class="s">&quot;http://arthur:excalibur@localhost:7474/db/data/&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
 <div class="admonition warning">
@@ -200,7 +205,7 @@ same host and port used thereafter.</p>
 <h2>URI Rewriting<a class="headerlink" href="#uri-rewriting" title="Permalink to this headline">¶</a></h2>
 <dl class="function">
 <dt id="py2neo.neo4j.rewrite">
-<tt class="descclassname">py2neo.neo4j.</tt><tt class="descname">rewrite</tt><big>(</big><em>from_scheme_host_port</em>, <em>to_scheme_host_port</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.rewrite" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">rewrite</tt><big>(</big><em>from_scheme_host_port</em>, <em>to_scheme_host_port</em><big>)</big><a class="reference internal" href="../_modules/py2neo/neo4j/#rewrite"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.rewrite" title="Permalink to this definition">¶</a></dt>
 <dd><p>Automatically rewrite all URIs directed to the scheme, host and port
 specified in <cite>from_scheme_host_port</cite> to that specified in
 <cite>to_scheme_host_port</cite>.</p>

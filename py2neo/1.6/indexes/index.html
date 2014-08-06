@@ -32,7 +32,7 @@
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../">
-              <img class="logo" src="../_static/py2neo.320x440.png" alt="Logo"/>
+              <img class="logo" src="../_static/py2neo-glossy.190x260.png" alt="Logo"/>
             </a></p>
   <h4>Previous topic</h4>
   <p class="topless"><a href="../schema/"
@@ -74,21 +74,21 @@
 <h1>Indexes<a class="headerlink" href="#indexes" title="Permalink to this headline">¶</a></h1>
 <dl class="class">
 <dt id="py2neo.neo4j.Index">
-<em class="property">class </em><tt class="descclassname">py2neo.neo4j.</tt><tt class="descname">Index</tt><big>(</big><em>content_type</em>, <em>uri</em>, <em>name=None</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Index" title="Permalink to this definition">¶</a></dt>
-<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">py2neo.core.Bindable</span></tt></p>
+<em class="property">class </em><tt class="descname">Index</tt><big>(</big><em>content_type</em>, <em>uri</em>, <em>name=None</em><big>)</big><a class="reference internal" href="../_modules/py2neo/neo4j/#Index"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.Index" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">py2neo.neo4j.Cacheable</span></tt>, <tt class="xref py py-class docutils literal"><span class="pre">py2neo.neo4j.Resource</span></tt></p>
 <p>Searchable database index which can contain either nodes or
 relationships.</p>
 <div class="admonition seealso">
 <p class="first admonition-title">See also</p>
-<p class="last"><tt class="xref py py-func docutils literal"><span class="pre">Graph.get_or_create_index()</span></tt></p>
+<p class="last"><tt class="xref py py-func docutils literal"><span class="pre">GraphDatabaseService.get_or_create_index()</span></tt></p>
 </div>
 <dl class="method">
 <dt id="py2neo.neo4j.Index.add">
-<tt class="descname">add</tt><big>(</big><em>key</em>, <em>value</em>, <em>entity</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Index.add" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">add</tt><big>(</big><em>key</em>, <em>value</em>, <em>entity</em><big>)</big><a class="reference internal" href="../_modules/py2neo/neo4j/#Index.add"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.Index.add" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add an entity to this index under the <cite>key</cite>:<cite>value</cite> pair supplied:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># create a node and obtain a reference to the &quot;People&quot; node index</span>
-<span class="n">alice</span><span class="p">,</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;Alice Smith&quot;</span><span class="p">})</span>
-<span class="n">people</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">get_or_create_index</span><span class="p">(</span><span class="n">neo4j</span><span class="o">.</span><span class="n">Node</span><span class="p">,</span> <span class="s">&quot;People&quot;</span><span class="p">)</span>
+<span class="n">alice</span><span class="p">,</span> <span class="o">=</span> <span class="n">graph_db</span><span class="o">.</span><span class="n">create</span><span class="p">({</span><span class="s">&quot;name&quot;</span><span class="p">:</span> <span class="s">&quot;Alice Smith&quot;</span><span class="p">})</span>
+<span class="n">people</span> <span class="o">=</span> <span class="n">graph_db</span><span class="o">.</span><span class="n">get_or_create_index</span><span class="p">(</span><span class="n">neo4j</span><span class="o">.</span><span class="n">Node</span><span class="p">,</span> <span class="s">&quot;People&quot;</span><span class="p">)</span>
 
 <span class="c"># add the node to the index</span>
 <span class="n">people</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="s">&quot;family_name&quot;</span><span class="p">,</span> <span class="s">&quot;Smith&quot;</span><span class="p">,</span> <span class="n">alice</span><span class="p">)</span>
@@ -101,12 +101,12 @@ this method is therefore idempotent.</p>
 
 <dl class="method">
 <dt id="py2neo.neo4j.Index.add_if_none">
-<tt class="descname">add_if_none</tt><big>(</big><em>key</em>, <em>value</em>, <em>entity</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Index.add_if_none" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">add_if_none</tt><big>(</big><em>key</em>, <em>value</em>, <em>entity</em><big>)</big><a class="reference internal" href="../_modules/py2neo/neo4j/#Index.add_if_none"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.Index.add_if_none" title="Permalink to this definition">¶</a></dt>
 <dd><p>Add an entity to this index under the <cite>key</cite>:<cite>value</cite> pair
 supplied if no entry already exists at that point:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># obtain a reference to the &quot;Rooms&quot; node index and</span>
 <span class="c"># add node `alice` to room 100 if empty</span>
-<span class="n">rooms</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">get_or_create_index</span><span class="p">(</span><span class="n">neo4j</span><span class="o">.</span><span class="n">Node</span><span class="p">,</span> <span class="s">&quot;Rooms&quot;</span><span class="p">)</span>
+<span class="n">rooms</span> <span class="o">=</span> <span class="n">graph_db</span><span class="o">.</span><span class="n">get_or_create_index</span><span class="p">(</span><span class="n">neo4j</span><span class="o">.</span><span class="n">Node</span><span class="p">,</span> <span class="s">&quot;Rooms&quot;</span><span class="p">)</span>
 <span class="n">rooms</span><span class="o">.</span><span class="n">add_if_none</span><span class="p">(</span><span class="s">&quot;room&quot;</span><span class="p">,</span> <span class="mi">100</span><span class="p">,</span> <span class="n">alice</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -116,28 +116,28 @@ is returned.</p>
 
 <dl class="attribute">
 <dt id="py2neo.neo4j.Index.content_type">
-<tt class="descname">content_type</tt><a class="headerlink" href="#py2neo.neo4j.Index.content_type" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">content_type</tt><a class="reference internal" href="../_modules/py2neo/neo4j/#Index.content_type"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.Index.content_type" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the type of entity contained within this index. Will return
 either <tt class="xref py py-class docutils literal"><span class="pre">Node</span></tt> or <tt class="xref py py-class docutils literal"><span class="pre">Relationship</span></tt>.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="py2neo.neo4j.Index.create">
-<tt class="descname">create</tt><big>(</big><em>key</em>, <em>value</em>, <em>abstract</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Index.create" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">create</tt><big>(</big><em>key</em>, <em>value</em>, <em>abstract</em><big>)</big><a class="reference internal" href="../_modules/py2neo/neo4j/#Index.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.Index.create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create and index a new node or relationship using the abstract
 provided.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="py2neo.neo4j.Index.create_if_none">
-<tt class="descname">create_if_none</tt><big>(</big><em>key</em>, <em>value</em>, <em>abstract</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Index.create_if_none" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">create_if_none</tt><big>(</big><em>key</em>, <em>value</em>, <em>abstract</em><big>)</big><a class="reference internal" href="../_modules/py2neo/neo4j/#Index.create_if_none"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.Index.create_if_none" title="Permalink to this definition">¶</a></dt>
 <dd><p>Create a new entity with the specified details within the current
 index, under the <cite>key</cite>:<cite>value</cite> pair supplied, if no such entity already
 exists. If creation occurs, the new entity will be returned, otherwise
 <tt class="xref py py-const docutils literal"><span class="pre">None</span></tt> will be returned:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># obtain a reference to the &quot;Contacts&quot; node index and</span>
 <span class="c"># create a node for Alice if one does not already exist</span>
-<span class="n">contacts</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">get_or_create_index</span><span class="p">(</span><span class="n">neo4j</span><span class="o">.</span><span class="n">Node</span><span class="p">,</span> <span class="s">&quot;Contacts&quot;</span><span class="p">)</span>
+<span class="n">contacts</span> <span class="o">=</span> <span class="n">graph_db</span><span class="o">.</span><span class="n">get_or_create_index</span><span class="p">(</span><span class="n">neo4j</span><span class="o">.</span><span class="n">Node</span><span class="p">,</span> <span class="s">&quot;Contacts&quot;</span><span class="p">)</span>
 <span class="n">alice</span> <span class="o">=</span> <span class="n">contacts</span><span class="o">.</span><span class="n">create_if_none</span><span class="p">(</span><span class="s">&quot;name&quot;</span><span class="p">,</span> <span class="s">&quot;SMITH, Alice&quot;</span><span class="p">,</span> <span class="p">{</span>
     <span class="s">&quot;given_name&quot;</span><span class="p">:</span> <span class="s">&quot;Alice Jane&quot;</span><span class="p">,</span> <span class="s">&quot;family_name&quot;</span><span class="p">:</span> <span class="s">&quot;Smith&quot;</span><span class="p">,</span>
     <span class="s">&quot;phone&quot;</span><span class="p">:</span> <span class="s">&quot;01234 567 890&quot;</span><span class="p">,</span> <span class="s">&quot;mobile&quot;</span><span class="p">:</span> <span class="s">&quot;07890 123 456&quot;</span>
@@ -148,12 +148,12 @@ exists. If creation occurs, the new entity will be returned, otherwise
 
 <dl class="method">
 <dt id="py2neo.neo4j.Index.get">
-<tt class="descname">get</tt><big>(</big><em>key</em>, <em>value</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Index.get" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get</tt><big>(</big><em>key</em>, <em>value</em><big>)</big><a class="reference internal" href="../_modules/py2neo/neo4j/#Index.get"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.Index.get" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch a list of all entities from the index which are associated
 with the <cite>key</cite>:<cite>value</cite> pair supplied:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># obtain a reference to the &quot;People&quot; node index and</span>
 <span class="c"># get all nodes where `family_name` equals &quot;Smith&quot;</span>
-<span class="n">people</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">get_or_create_index</span><span class="p">(</span><span class="n">neo4j</span><span class="o">.</span><span class="n">Node</span><span class="p">,</span> <span class="s">&quot;People&quot;</span><span class="p">)</span>
+<span class="n">people</span> <span class="o">=</span> <span class="n">graph_db</span><span class="o">.</span><span class="n">get_or_create_index</span><span class="p">(</span><span class="n">neo4j</span><span class="o">.</span><span class="n">Node</span><span class="p">,</span> <span class="s">&quot;People&quot;</span><span class="p">)</span>
 <span class="n">smiths</span> <span class="o">=</span> <span class="n">people</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="s">&quot;family_name&quot;</span><span class="p">,</span> <span class="s">&quot;Smith&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -161,13 +161,13 @@ with the <cite>key</cite>:<cite>value</cite> pair supplied:</p>
 
 <dl class="method">
 <dt id="py2neo.neo4j.Index.get_or_create">
-<tt class="descname">get_or_create</tt><big>(</big><em>key</em>, <em>value</em>, <em>abstract</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Index.get_or_create" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">get_or_create</tt><big>(</big><em>key</em>, <em>value</em>, <em>abstract</em><big>)</big><a class="reference internal" href="../_modules/py2neo/neo4j/#Index.get_or_create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.Index.get_or_create" title="Permalink to this definition">¶</a></dt>
 <dd><p>Fetch a single entity from the index which is associated with the
 <cite>key</cite>:<cite>value</cite> pair supplied, creating a new entity with the supplied
 details if none exists:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># obtain a reference to the &quot;Contacts&quot; node index and</span>
 <span class="c"># ensure that Alice exists therein</span>
-<span class="n">contacts</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">get_or_create_index</span><span class="p">(</span><span class="n">neo4j</span><span class="o">.</span><span class="n">Node</span><span class="p">,</span> <span class="s">&quot;Contacts&quot;</span><span class="p">)</span>
+<span class="n">contacts</span> <span class="o">=</span> <span class="n">graph_db</span><span class="o">.</span><span class="n">get_or_create_index</span><span class="p">(</span><span class="n">neo4j</span><span class="o">.</span><span class="n">Node</span><span class="p">,</span> <span class="s">&quot;Contacts&quot;</span><span class="p">)</span>
 <span class="n">alice</span> <span class="o">=</span> <span class="n">contacts</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span><span class="s">&quot;name&quot;</span><span class="p">,</span> <span class="s">&quot;SMITH, Alice&quot;</span><span class="p">,</span> <span class="p">{</span>
     <span class="s">&quot;given_name&quot;</span><span class="p">:</span> <span class="s">&quot;Alice Jane&quot;</span><span class="p">,</span> <span class="s">&quot;family_name&quot;</span><span class="p">:</span> <span class="s">&quot;Smith&quot;</span><span class="p">,</span>
     <span class="s">&quot;phone&quot;</span><span class="p">:</span> <span class="s">&quot;01234 567 890&quot;</span><span class="p">,</span> <span class="s">&quot;mobile&quot;</span><span class="p">:</span> <span class="s">&quot;07890 123 456&quot;</span>
@@ -176,7 +176,7 @@ details if none exists:</p>
 <span class="c"># obtain a reference to the &quot;Friendships&quot; relationship index and</span>
 <span class="c"># ensure that Alice and Bob&#39;s friendship is registered (`alice`</span>
 <span class="c"># and `bob` refer to existing nodes)</span>
-<span class="n">friendships</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">get_or_create_index</span><span class="p">(</span><span class="n">neo4j</span><span class="o">.</span><span class="n">Relationship</span><span class="p">,</span> <span class="s">&quot;Friendships&quot;</span><span class="p">)</span>
+<span class="n">friendships</span> <span class="o">=</span> <span class="n">graph_db</span><span class="o">.</span><span class="n">get_or_create_index</span><span class="p">(</span><span class="n">neo4j</span><span class="o">.</span><span class="n">Relationship</span><span class="p">,</span> <span class="s">&quot;Friendships&quot;</span><span class="p">)</span>
 <span class="n">alice_and_bob</span> <span class="o">=</span> <span class="n">friendships</span><span class="o">.</span><span class="n">get_or_create</span><span class="p">(</span>
     <span class="s">&quot;friends&quot;</span><span class="p">,</span> <span class="s">&quot;Alice &amp; Bob&quot;</span><span class="p">,</span> <span class="p">(</span><span class="n">alice</span><span class="p">,</span> <span class="s">&quot;KNOWS&quot;</span><span class="p">,</span> <span class="n">bob</span><span class="p">)</span>
 <span class="p">)</span>
@@ -186,18 +186,18 @@ details if none exists:</p>
 
 <dl class="attribute">
 <dt id="py2neo.neo4j.Index.name">
-<tt class="descname">name</tt><a class="headerlink" href="#py2neo.neo4j.Index.name" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">name</tt><a class="reference internal" href="../_modules/py2neo/neo4j/#Index.name"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.Index.name" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return the name of this index.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="py2neo.neo4j.Index.query">
-<tt class="descname">query</tt><big>(</big><em>query</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Index.query" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">query</tt><big>(</big><em>query</em><big>)</big><a class="reference internal" href="../_modules/py2neo/neo4j/#Index.query"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.Index.query" title="Permalink to this definition">¶</a></dt>
 <dd><p>Query the index according to the supplied query criteria, returning
 a list of matched entities:</p>
 <div class="highlight-python"><div class="highlight"><pre><span class="c"># obtain a reference to the &quot;People&quot; node index and</span>
 <span class="c"># get all nodes where `family_name` equals &quot;Smith&quot;</span>
-<span class="n">people</span> <span class="o">=</span> <span class="n">graph</span><span class="o">.</span><span class="n">get_or_create_index</span><span class="p">(</span><span class="n">neo4j</span><span class="o">.</span><span class="n">Node</span><span class="p">,</span> <span class="s">&quot;People&quot;</span><span class="p">)</span>
+<span class="n">people</span> <span class="o">=</span> <span class="n">graph_db</span><span class="o">.</span><span class="n">get_or_create_index</span><span class="p">(</span><span class="n">neo4j</span><span class="o">.</span><span class="n">Node</span><span class="p">,</span> <span class="s">&quot;People&quot;</span><span class="p">)</span>
 <span class="n">s_people</span> <span class="o">=</span> <span class="n">people</span><span class="o">.</span><span class="n">query</span><span class="p">(</span><span class="s">&quot;family_name:S*&quot;</span><span class="p">)</span>
 </pre></div>
 </div>
@@ -208,7 +208,7 @@ should be Apache Lucene query syntax.</p>
 
 <dl class="method">
 <dt id="py2neo.neo4j.Index.remove">
-<tt class="descname">remove</tt><big>(</big><em>key=None</em>, <em>value=None</em>, <em>entity=None</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Index.remove" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">remove</tt><big>(</big><em>key=None</em>, <em>value=None</em>, <em>entity=None</em><big>)</big><a class="reference internal" href="../_modules/py2neo/neo4j/#Index.remove"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.Index.remove" title="Permalink to this definition">¶</a></dt>
 <dd><p>Remove any entries from the index which match the parameters
 supplied. The allowed parameter combinations are:</p>
 <dl class="docutils">

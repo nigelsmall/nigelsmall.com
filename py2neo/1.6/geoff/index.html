@@ -1,0 +1,230 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Geoff &mdash; py2neo 1.6.4 documentation</title>
+    
+    <link rel="stylesheet" href="../_static/nige.css" type="text/css" />
+    <link rel="stylesheet" href="../_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    '../',
+        VERSION:     '1.6.4',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="../_static/jquery.js"></script>
+    <script type="text/javascript" src="../_static/underscore.js"></script>
+    <script type="text/javascript" src="../_static/doctools.js"></script>
+    <link rel="top" title="py2neo 1.6.4 documentation" href="../" />
+    <link rel="next" title="Date Modelling" href="../calendar/" />
+    <link rel="prev" title="Object-Graph Mapping (OGM)" href="../ogm/" /> 
+  </head>
+  <body>
+
+      <div class="sphinxsidebar">
+        <div class="sphinxsidebarwrapper">
+            <p class="logo"><a href="../">
+              <img class="logo" src="../_static/py2neo-glossy.190x260.png" alt="Logo"/>
+            </a></p>
+  <h3><a href="../">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Geoff</a><ul>
+<li><a class="reference internal" href="#overview">Overview</a></li>
+<li><a class="reference internal" href="#paths">Paths</a></li>
+<li><a class="reference internal" href="#index-entries">Index Entries</a></li>
+<li><a class="reference internal" href="#comments">Comments</a></li>
+<li><a class="reference internal" href="#subgraphs">Subgraphs</a></li>
+<li><a class="reference internal" href="#module-functions">Module Functions</a></li>
+<li><a class="reference internal" href="#full-geoff-syntax-specification-version-2">Full Geoff Syntax Specification (version 2)</a></li>
+</ul>
+</li>
+</ul>
+
+  <h4>Previous topic</h4>
+  <p class="topless"><a href="../ogm/"
+                        title="previous chapter">Object-Graph Mapping (OGM)</a></p>
+  <h4>Next topic</h4>
+  <p class="topless"><a href="../calendar/"
+                        title="next chapter">Date Modelling</a></p>
+<div id="searchbox" style="display: none">
+  <h3>Quick search</h3>
+    <form class="search" action="../search/" method="get">
+      <input type="text" name="q" />
+      <input type="submit" value="Go" />
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+    <p class="searchtip" style="font-size: 90%">
+    Enter search terms or a module, class or function name.
+    </p>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+
+    <div class="document">
+    <header>
+    <div class="title"><a href="/">Nigel Small</a></div>
+    <div class="contact">
+    <a href="http://twitter.com/neonige"><img src="../_static/twitter_mark.png"></a>
+    <a href="http://github.com/nigelsmall"><img src="../_static/github_mark.png"></a>
+    </div>
+    </header>
+    <main>
+        
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body">
+            
+  <div class="section" id="geoff">
+<h1>Geoff<a class="headerlink" href="#geoff" title="Permalink to this headline">¶</a></h1>
+<div class="admonition warning">
+<p class="first admonition-title">Warning</p>
+<p>The entire geoff.py module has been deprecated in py2neo 1.6.2 and will be
+removed completely in 1.7.0.</p>
+<p class="last">Geoff should now be used via the <a class="reference external" href="http://nigelsmall.com/load2neo">load2neo</a>
+extension that provides more efficient and more consistent behaviour. This
+facility can be accessed client-side by using the <a class="reference external" href="../graphs_nodes_relationships/#py2neo.neo4j.GraphDatabaseService.load_geoff">load_geoff</a>
+method when the extension has been installed on the server.</p>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">The geoff.py module requires server version 1.8.2 or above.</p>
+</div>
+<p>Geoff is a textual interchange format for graph data, designed with Neo4j in
+mind. It can be seen as a graphical equivalent of CSV and is intended to be
+clear and familiar with a shallow learning curve.</p>
+<p>The <tt class="docutils literal"><span class="pre">geoff</span></tt> module represents an evolution of the format originally packaged
+with py2neo and the one provided by the server plugin. While this module is
+fully backward compatible with the older, simpler syntax, use of the new syntax
+is encouraged wherever possible. The server plugin will be enhanced at some
+point in the future.</p>
+<div class="section" id="overview">
+<h2>Overview<a class="headerlink" href="#overview" title="Permalink to this headline">¶</a></h2>
+<p>Geoff can be used to represent a snapshot of graph data. It is purely
+declarative and borrows much of its syntax from Cypher. A Geoff file is
+represents a single <em>subgraph</em> and contains a number of <em>elements</em> separated by
+whitespace. These elements may be <em>paths</em>, <em>index entries</em> or <em>comments</em>. The
+example below shows all three of these element types within a single subgraph:</p>
+<div class="highlight-python"><div class="highlight"><pre>/* Link to Alice and Bob from within the People index */
+|People {&quot;email&quot;:&quot;alice@example.com&quot;}|=&gt;(alice)
+|People {&quot;email&quot;:&quot;bob@example.org&quot;}|=&gt;(bob)
+
+/* Alice knows Bob */
+(alice {&quot;name&quot;:&quot;Alice&quot;})-[:KNOWS]-&gt;(bob {&quot;name&quot;:&quot;Bob&quot;})
+</pre></div>
+</div>
+</div>
+<div class="section" id="paths">
+<h2>Paths<a class="headerlink" href="#paths" title="Permalink to this headline">¶</a></h2>
+<p>A Geoff path consists of one or more nodes connected by relationships. The
+simplest path is a single node which may or may not contain properties:</p>
+<div class="highlight-python"><div class="highlight"><pre>(alice)
+(alice {&quot;name&quot;:&quot;Alice&quot;})
+</pre></div>
+</div>
+<p>Any number of nodes may be chained together with relationships, for example:</p>
+<div class="highlight-python"><div class="highlight"><pre>(alice)-[:KNOWS]-&gt;(bob {&quot;name&quot;:&quot;Bob&quot;})
+(bob)-[:KNOWS]-&gt;(carol {&quot;name&quot;:&quot;Carol&quot;})-[:KNOWS]-&gt;(dave {&quot;name&quot;:&quot;Dave&quot;})
+</pre></div>
+</div>
+<p>Path relationships do not all have to flow in the same direction:</p>
+<div class="highlight-python"><div class="highlight"><pre>(homer)&lt;-[:FATHER]-(bart)-[:MOTHER]-&gt;(marge)
+</pre></div>
+</div>
+<p>Relationships may also have properties:</p>
+<div class="highlight-python"><div class="highlight"><pre>(sun)-[:PLANET {&quot;distance&quot;:149600000,&quot;unit&quot;:&quot;km&quot;}]-&gt;(earth)
+</pre></div>
+</div>
+</div>
+<div class="section" id="index-entries">
+<h2>Index Entries<a class="headerlink" href="#index-entries" title="Permalink to this headline">¶</a></h2>
+<p>Index entries denote entries within Neo4j node indexes bound to a single
+key-value pair. These elements use pipe symbols (<tt class="docutils literal"><span class="pre">|</span></tt>) and heavy arrows
+(<tt class="docutils literal"><span class="pre">=&gt;</span></tt>):</p>
+<div class="highlight-python"><div class="highlight"><pre>|People {&quot;email&quot;:&quot;alice@example.com&quot;}|=&gt;(alice {&quot;name&quot;:&quot;Alice&quot;})
+(bob {&quot;name&quot;:&quot;Bob&quot;})&lt;=|People {&quot;email&quot;:&quot;bob@example.net&quot;}|
+</pre></div>
+</div>
+<div class="admonition note">
+<p class="first admonition-title">Note</p>
+<p class="last">Relationship index entries are no longer supported within Geoff.</p>
+</div>
+</div>
+<div class="section" id="comments">
+<h2>Comments<a class="headerlink" href="#comments" title="Permalink to this headline">¶</a></h2>
+<p>Comment elements may be included between other elements and have the same
+syntax as C/Java multiline comments, between <tt class="docutils literal"><span class="pre">/*</span></tt> and <tt class="docutils literal"><span class="pre">*/</span></tt>.</p>
+</div>
+<div class="section" id="subgraphs">
+<h2>Subgraphs<a class="headerlink" href="#subgraphs" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="module-functions">
+<h2>Module Functions<a class="headerlink" href="#module-functions" title="Permalink to this headline">¶</a></h2>
+</div>
+<div class="section" id="full-geoff-syntax-specification-version-2">
+<h2>Full Geoff Syntax Specification (version 2)<a class="headerlink" href="#full-geoff-syntax-specification-version-2" title="Permalink to this headline">¶</a></h2>
+<div class="highlight-python"><div class="highlight"><pre>subgraph       := [element (_ element)*]
+element        := path | index_entry | comment
+
+path           := node (forward_path | reverse_path)*
+forward_path   := &quot;-&quot; relationship &quot;-&gt;&quot; node
+reverse_path   := &quot;&lt;-&quot; relationship &quot;-&quot; node
+
+index_entry    := forward_entry | reverse_entry
+forward_entry  := &quot;|&quot; ~ index_name _ property_pair ~ &quot;|&quot; &quot;=&gt;&quot; node
+reverse_entry  := node &quot;&lt;=&quot; &quot;|&quot; ~ index_name _ property_pair ~ &quot;|&quot;
+index_name     := name | JSON_STRING
+
+comment        := &quot;/*&quot; &lt;&lt;any text excluding sequence &quot;*/&quot;&gt;&gt; &quot;*/&quot;
+
+node           := named_node | anonymous_node
+named_node     := &quot;(&quot; ~ node_name [_ property_map] ~ &quot;)&quot;
+anonymous_node := &quot;(&quot; ~ [property_map ~] &quot;)&quot;
+relationship   := &quot;[&quot; ~ &quot;:&quot; type [_ property_map] ~ &quot;]&quot;
+property_pair  := &quot;{&quot; ~ key_value ~ &quot;}&quot;
+property_map   := &quot;{&quot; ~ [key_value (~ &quot;,&quot; ~ key_value)* ~] &quot;}&quot;
+node_name      := name | JSON_STRING
+name           := (ALPHA | DIGIT | &quot;_&quot;)+
+type           := name | JSON_STRING
+key_value      := key ~ &quot;:&quot; ~ value
+key            := name | JSON_STRING
+value          := array | JSON_STRING | JSON_NUMBER | JSON_BOOLEAN | JSON_NULL
+
+array          := empty_array | string_array | numeric_array | boolean_array
+empty_array    := &quot;[&quot; ~ &quot;]&quot;
+string_array   := &quot;[&quot; ~ JSON_STRING (~ &quot;,&quot; ~ JSON_STRING)* ~ &quot;]&quot;
+numeric_array  := &quot;[&quot; ~ JSON_NUMBER (~ &quot;,&quot; ~ JSON_NUMBER)* ~ &quot;]&quot;
+boolean_array  := &quot;[&quot; ~ JSON_BOOLEAN (~ &quot;,&quot; ~ JSON_BOOLEAN)* ~ &quot;]&quot;
+
+* Mandatory whitespace is represented by &quot;_&quot; and optional whitespace by &quot;~&quot;
+</pre></div>
+</div>
+</div>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+    </main>
+    <footer>
+        <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/"><img alt="Creative Commons Licence" style="border-width:0" src="http://i.creativecommons.org/l/by-sa/4.0/88x31.png" /></a><br>
+This work is licensed under a <a rel="license" href="http://creativecommons.org/licenses/by-sa/4.0/">Creative Commons Attribution-ShareAlike 4.0 International License</a>.
+    </footer>
+
+      <div class="clearer"></div>
+    </div>
+
+    <div class="footer">
+    </div>
+  </body>
+</html>

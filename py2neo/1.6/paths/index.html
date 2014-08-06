@@ -32,7 +32,7 @@
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../">
-              <img class="logo" src="../_static/py2neo.320x440.png" alt="Logo"/>
+              <img class="logo" src="../_static/py2neo-glossy.190x260.png" alt="Logo"/>
             </a></p>
   <h4>Previous topic</h4>
   <p class="topless"><a href="../graphs_nodes_relationships/"
@@ -79,71 +79,66 @@ end. Py2neo provides the <a class="reference internal" href="#py2neo.neo4j.Path"
 used to represent these structures:</p>
 <dl class="class">
 <dt id="py2neo.neo4j.Path">
-<em class="property">class </em><tt class="descclassname">py2neo.neo4j.</tt><tt class="descname">Path</tt><big>(</big><em>*entities</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Path" title="Permalink to this definition">¶</a></dt>
-<dd><p>A chain of relationships.</p>
-<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">py2neo</span> <span class="kn">import</span> <span class="n">Node</span><span class="p">,</span> <span class="n">Path</span><span class="p">,</span> <span class="n">Rev</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">alice</span><span class="p">,</span> <span class="n">bob</span><span class="p">,</span> <span class="n">carol</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Alice&quot;</span><span class="p">),</span> <span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Bob&quot;</span><span class="p">),</span> <span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Carol&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">abc</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">alice</span><span class="p">,</span> <span class="s">&quot;KNOWS&quot;</span><span class="p">,</span> <span class="n">bob</span><span class="p">,</span> <span class="n">Rev</span><span class="p">(</span><span class="s">&quot;KNOWS&quot;</span><span class="p">),</span> <span class="n">carol</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">abc</span>
-<span class="go">({name:&quot;Alice&quot;})-[:KNOWS]-&gt;({name:&quot;Bob&quot;})&lt;-[:KNOWS]-({name:&quot;Carol&quot;})</span>
+<em class="property">class </em><tt class="descname">Path</tt><big>(</big><em>node</em>, <em>*rels_and_nodes</em><big>)</big><a class="reference internal" href="../_modules/py2neo/neo4j/#Path"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.Path" title="Permalink to this definition">¶</a></dt>
+<dd><p>A representation of a sequence of nodes connected by relationships. for
+example:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="gp">&gt;&gt;&gt; </span><span class="kn">from</span> <span class="nn">py2neo</span> <span class="kn">import</span> <span class="n">neo4j</span><span class="p">,</span> <span class="n">node</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">alice</span><span class="p">,</span> <span class="n">bob</span><span class="p">,</span> <span class="n">carol</span> <span class="o">=</span> <span class="n">node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Alice&quot;</span><span class="p">),</span> <span class="n">node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Bob&quot;</span><span class="p">),</span> <span class="n">node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Carol&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">abc</span> <span class="o">=</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">alice</span><span class="p">,</span> <span class="s">&quot;KNOWS&quot;</span><span class="p">,</span> <span class="n">bob</span><span class="p">,</span> <span class="s">&quot;KNOWS&quot;</span><span class="p">,</span> <span class="n">carol</span><span class="p">)</span>
 <span class="gp">&gt;&gt;&gt; </span><span class="n">abc</span><span class="o">.</span><span class="n">nodes</span>
-<span class="go">(({name:&quot;Alice&quot;}), ({name:&quot;Bob&quot;}), ({name:&quot;Carol&quot;}))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">abc</span><span class="o">.</span><span class="n">rels</span>
-<span class="go">(-[:KNOWS]-&gt;, &lt;-[:KNOWS]-)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">abc</span><span class="o">.</span><span class="n">relationships</span>
-<span class="go">(({name:&quot;Alice&quot;})-[:KNOWS]-&gt;({name:&quot;Bob&quot;}), ({name:&quot;Carol&quot;})-[:KNOWS]-&gt;({name:&quot;Bob&quot;}))</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">dave</span><span class="p">,</span> <span class="n">eve</span> <span class="o">=</span> <span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Dave&quot;</span><span class="p">),</span> <span class="n">Node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Eve&quot;</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">de</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">dave</span><span class="p">,</span> <span class="s">&quot;KNOWS&quot;</span><span class="p">,</span> <span class="n">eve</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">de</span>
-<span class="go">({name:&quot;Dave&quot;})-[:KNOWS]-&gt;({name:&quot;Eve&quot;})</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">abcde</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="n">abc</span><span class="p">,</span> <span class="s">&quot;KNOWS&quot;</span><span class="p">,</span> <span class="n">de</span><span class="p">)</span>
-<span class="gp">&gt;&gt;&gt; </span><span class="n">abcde</span>
-<span class="go">({name:&quot;Alice&quot;})-[:KNOWS]-&gt;({name:&quot;Bob&quot;})&lt;-[:KNOWS]-({name:&quot;Carol&quot;})-[:KNOWS]-&gt;({name:&quot;Dave&quot;})-[:KNOWS]-&gt;({name:&quot;Eve&quot;})</span>
+<span class="go">[node(**{&#39;name&#39;: &#39;Alice&#39;}), node(**{&#39;name&#39;: &#39;Bob&#39;}), node(**{&#39;name&#39;: &#39;Carol&#39;})]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">dave</span><span class="p">,</span> <span class="n">eve</span> <span class="o">=</span> <span class="n">node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Dave&quot;</span><span class="p">),</span> <span class="n">node</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s">&quot;Eve&quot;</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">de</span> <span class="o">=</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">Path</span><span class="p">(</span><span class="n">dave</span><span class="p">,</span> <span class="s">&quot;KNOWS&quot;</span><span class="p">,</span> <span class="n">eve</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">de</span><span class="o">.</span><span class="n">nodes</span>
+<span class="go">[node(**{&#39;name&#39;: &#39;Dave&#39;}), node(**{&#39;name&#39;: &#39;Eve&#39;})]</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">abcde</span> <span class="o">=</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">Path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">abc</span><span class="p">,</span> <span class="s">&quot;KNOWS&quot;</span><span class="p">,</span> <span class="n">de</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="nb">str</span><span class="p">(</span><span class="n">abcde</span><span class="p">)</span>
+<span class="go">&#39;({&quot;name&quot;:&quot;Alice&quot;})-[:&quot;KNOWS&quot;]-&gt;({&quot;name&quot;:&quot;Bob&quot;})-[:&quot;KNOWS&quot;]-&gt;({&quot;name&quot;:&quot;Carol&quot;})-[:&quot;KNOWS&quot;]-&gt;({&quot;name&quot;:&quot;Dave&quot;})-[:&quot;KNOWS&quot;]-&gt;({&quot;name&quot;:&quot;Eve&quot;})&#39;</span>
 </pre></div>
 </div>
 <dl class="method">
 <dt id="py2neo.neo4j.Path.create">
-<tt class="descname">create</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Path.create" title="Permalink to this definition">¶</a></dt>
-<dd><p>Construct a path within the specified <cite>graph</cite> from the nodes
+<tt class="descname">create</tt><big>(</big><em>graph_db</em><big>)</big><a class="reference internal" href="../_modules/py2neo/neo4j/#Path.create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.Path.create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a path within the specified <cite>graph_db</cite> from the nodes
 and relationships within this <tt class="xref py py-class docutils literal"><span class="pre">Path</span></tt> instance. This makes
 use of Cypher&#8217;s <tt class="docutils literal"><span class="pre">CREATE</span></tt> clause.</p>
 </dd></dl>
 
 <dl class="method">
 <dt id="py2neo.neo4j.Path.get_or_create">
-<tt class="descname">get_or_create</tt><big>(</big><em>*args</em>, <em>**kwargs</em><big>)</big><a class="headerlink" href="#py2neo.neo4j.Path.get_or_create" title="Permalink to this definition">¶</a></dt>
-<dd><p>Construct a unique path within the specified <cite>graph</cite> from the
+<tt class="descname">get_or_create</tt><big>(</big><em>graph_db</em><big>)</big><a class="reference internal" href="../_modules/py2neo/neo4j/#Path.get_or_create"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.Path.get_or_create" title="Permalink to this definition">¶</a></dt>
+<dd><p>Construct a unique path within the specified <cite>graph_db</cite> from the
 nodes and relationships within this <tt class="xref py py-class docutils literal"><span class="pre">Path</span></tt> instance. This
 makes use of Cypher&#8217;s <tt class="docutils literal"><span class="pre">CREATE</span> <span class="pre">UNIQUE</span></tt> clause.</p>
 </dd></dl>
 
+<dl class="classmethod">
+<dt id="py2neo.neo4j.Path.join">
+<em class="property">classmethod </em><tt class="descname">join</tt><big>(</big><em>left</em>, <em>rel</em>, <em>right</em><big>)</big><a class="reference internal" href="../_modules/py2neo/neo4j/#Path.join"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.Path.join" title="Permalink to this definition">¶</a></dt>
+<dd><p>Join the two paths <cite>left</cite> and <cite>right</cite> with the relationship <cite>rel</cite>.</p>
+</dd></dl>
+
 <dl class="attribute">
 <dt id="py2neo.neo4j.Path.nodes">
-<tt class="descname">nodes</tt><a class="headerlink" href="#py2neo.neo4j.Path.nodes" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a tuple of all the nodes which make up this path.</p>
+<tt class="descname">nodes</tt><a class="reference internal" href="../_modules/py2neo/neo4j/#Path.nodes"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.Path.nodes" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return a list of all the nodes which make up this path.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="py2neo.neo4j.Path.order">
-<tt class="descname">order</tt><a class="headerlink" href="#py2neo.neo4j.Path.order" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">order</tt><a class="reference internal" href="../_modules/py2neo/neo4j/#Path.order"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.Path.order" title="Permalink to this definition">¶</a></dt>
 <dd><p>The number of nodes within this path.</p>
 </dd></dl>
 
 <dl class="attribute">
 <dt id="py2neo.neo4j.Path.relationships">
-<tt class="descname">relationships</tt><a class="headerlink" href="#py2neo.neo4j.Path.relationships" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">relationships</tt><a class="reference internal" href="../_modules/py2neo/neo4j/#Path.relationships"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.Path.relationships" title="Permalink to this definition">¶</a></dt>
 <dd><p>Return a list of all the relationships which make up this path.</p>
 </dd></dl>
 
 <dl class="attribute">
-<dt id="py2neo.neo4j.Path.rels">
-<tt class="descname">rels</tt><a class="headerlink" href="#py2neo.neo4j.Path.rels" title="Permalink to this definition">¶</a></dt>
-<dd><p>Return a tuple of all the rels which make up this path.</p>
-</dd></dl>
-
-<dl class="attribute">
 <dt id="py2neo.neo4j.Path.size">
-<tt class="descname">size</tt><a class="headerlink" href="#py2neo.neo4j.Path.size" title="Permalink to this definition">¶</a></dt>
+<tt class="descname">size</tt><a class="reference internal" href="../_modules/py2neo/neo4j/#Path.size"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.neo4j.Path.size" title="Permalink to this definition">¶</a></dt>
 <dd><p>The number of relationships within this path.</p>
 </dd></dl>
 

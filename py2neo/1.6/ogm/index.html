@@ -24,7 +24,7 @@
     <script type="text/javascript" src="../_static/underscore.js"></script>
     <script type="text/javascript" src="../_static/doctools.js"></script>
     <link rel="top" title="py2neo 1.6.4 documentation" href="../" />
-    <link rel="next" title="Date Modelling" href="../calendar/" />
+    <link rel="next" title="Geoff" href="../geoff/" />
     <link rel="prev" title="Cypher" href="../cypher/" /> 
   </head>
   <body>
@@ -32,14 +32,14 @@
       <div class="sphinxsidebar">
         <div class="sphinxsidebarwrapper">
             <p class="logo"><a href="../">
-              <img class="logo" src="../_static/py2neo.320x440.png" alt="Logo"/>
+              <img class="logo" src="../_static/py2neo-glossy.190x260.png" alt="Logo"/>
             </a></p>
   <h4>Previous topic</h4>
   <p class="topless"><a href="../cypher/"
                         title="previous chapter">Cypher</a></p>
   <h4>Next topic</h4>
-  <p class="topless"><a href="../calendar/"
-                        title="next chapter">Date Modelling</a></p>
+  <p class="topless"><a href="../geoff/"
+                        title="next chapter">Geoff</a></p>
 <div id="searchbox" style="display: none">
   <h3>Quick search</h3>
     <form class="search" action="../search/" method="get">
@@ -70,8 +70,334 @@
         <div class="bodywrapper">
           <div class="body">
             
-  <div class="section" id="object-graph-mapping-ogm">
-<h1>Object-Graph Mapping (OGM)<a class="headerlink" href="#object-graph-mapping-ogm" title="Permalink to this headline">¶</a></h1>
+  <div class="section" id="module-py2neo.ogm">
+<span id="object-graph-mapping-ogm"></span><h1>Object-Graph Mapping (OGM)<a class="headerlink" href="#module-py2neo.ogm" title="Permalink to this headline">¶</a></h1>
+<p>The ogm module provides Object to Graph Mapping features similar to ORM
+facilities available for relational databases. All functionality is available
+through the <a class="reference internal" href="#py2neo.ogm.Store" title="py2neo.ogm.Store"><tt class="xref py py-class docutils literal"><span class="pre">Store</span></tt></a> class which is bound to a specific
+<tt class="xref py py-class docutils literal"><span class="pre">neo4j.GraphDatabaseService</span></tt> instance on creation.</p>
+<p>Conceptually, a mapped object &#8220;owns&#8221; a single node within the graph along with
+all of that node&#8217;s outgoing relationships. These features are managed via a
+pair of attributes called <cite>__node__</cite> and <cite>__rel__</cite> which store details of the
+mapped node and the outgoing relationships respectively. The only specific
+requirement for a mapped object is that it has a nullary constructor which can
+be used to create new instances.</p>
+<p>The <cite>__node__</cite> attribute holds a <tt class="xref py py-class docutils literal"><span class="pre">neo4j.Node</span></tt> object which is the
+node to which this object is mapped. If the attribute does not exist, or is
+<tt class="xref py py-const docutils literal"><span class="pre">None</span></tt>, the object is considered &#8220;unsaved&#8221;.</p>
+<p>The <cite>__rel__</cite> attribute holds a dictionary of outgoing relationship details.
+Each key corresponds to a relationship type and each value to a list of
+2-tuples representing the outgoing relationships of that type. Within each
+2-tuple, the first value holds a dictionary of relationship properties (which
+may be empty) and the second value holds the endpoint. The endpoint may be
+either a <tt class="xref py py-class docutils literal"><span class="pre">neo4j.Node</span></tt> instance or another mapped object. Any such
+objects which are unsaved will be lazily saved as required by creation of the
+relationship itself. The following data structure outline shows an example of
+a <cite>__rel__</cite> attribute (where <cite>alice</cite> and <cite>bob</cite> represent other mapped objects:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="p">{</span>
+    <span class="s">&quot;LIKES&quot;</span><span class="p">:</span> <span class="p">[</span>
+        <span class="p">({},</span> <span class="n">alice</span><span class="p">),</span>
+        <span class="p">({</span><span class="s">&quot;since&quot;</span><span class="p">:</span> <span class="mi">1999</span><span class="p">},</span> <span class="n">bob</span><span class="p">)</span>
+    <span class="p">]</span>
+<span class="p">}</span>
+</pre></div>
+</div>
+<p>To manage relationships, use the <a class="reference internal" href="#py2neo.ogm.Store.relate" title="py2neo.ogm.Store.relate"><tt class="xref py py-func docutils literal"><span class="pre">Store.relate()</span></tt></a> and
+<a class="reference internal" href="#py2neo.ogm.Store.separate" title="py2neo.ogm.Store.separate"><tt class="xref py py-func docutils literal"><span class="pre">Store.separate()</span></tt></a> methods. Neither method makes any calls to the
+database and operates only on the local <cite>__rel__</cite> attribute. Changes must be
+explicitly saved via one of the available save methods. The
+<a class="reference internal" href="#py2neo.ogm.Store.load_related" title="py2neo.ogm.Store.load_related"><tt class="xref py py-func docutils literal"><span class="pre">Store.load_related()</span></tt></a> method loads all objects marked as related by
+the <cite>__rel__</cite> attribute.</p>
+<p>The code below shows an example of usage:</p>
+<div class="highlight-python"><div class="highlight"><pre><span class="kn">from</span> <span class="nn">py2neo</span> <span class="kn">import</span> <span class="n">neo4j</span><span class="p">,</span> <span class="n">ogm</span>
+
+<span class="k">class</span> <span class="nc">Person</span><span class="p">(</span><span class="nb">object</span><span class="p">):</span>
+
+    <span class="k">def</span> <span class="nf">__init__</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">email</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">name</span><span class="o">=</span><span class="bp">None</span><span class="p">,</span> <span class="n">age</span><span class="o">=</span><span class="bp">None</span><span class="p">):</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">email</span> <span class="o">=</span> <span class="n">email</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">name</span> <span class="o">=</span> <span class="n">name</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">age</span> <span class="o">=</span> <span class="n">age</span>
+
+    <span class="k">def</span> <span class="nf">__str__</span><span class="p">(</span><span class="bp">self</span><span class="p">):</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">name</span>
+
+<span class="n">graph_db</span> <span class="o">=</span> <span class="n">neo4j</span><span class="o">.</span><span class="n">GraphDatabaseService</span><span class="p">()</span>
+<span class="n">store</span> <span class="o">=</span> <span class="n">ogm</span><span class="o">.</span><span class="n">Store</span><span class="p">(</span><span class="n">graph_db</span><span class="p">)</span>
+
+<span class="n">alice</span> <span class="o">=</span> <span class="n">Person</span><span class="p">(</span><span class="s">&quot;alice@example.com&quot;</span><span class="p">,</span> <span class="s">&quot;Alice&quot;</span><span class="p">,</span> <span class="mi">34</span><span class="p">)</span>
+<span class="n">store</span><span class="o">.</span><span class="n">save_unique</span><span class="p">(</span><span class="s">&quot;People&quot;</span><span class="p">,</span> <span class="s">&quot;email&quot;</span><span class="p">,</span> <span class="n">alice</span><span class="o">.</span><span class="n">email</span><span class="p">,</span> <span class="n">alice</span><span class="p">)</span>
+
+<span class="n">bob</span> <span class="o">=</span> <span class="n">Person</span><span class="p">(</span><span class="s">&quot;bob@example.org&quot;</span><span class="p">,</span> <span class="s">&quot;Bob&quot;</span><span class="p">,</span> <span class="mi">66</span><span class="p">)</span>
+<span class="n">carol</span> <span class="o">=</span> <span class="n">Person</span><span class="p">(</span><span class="s">&quot;carol@example.net&quot;</span><span class="p">,</span> <span class="s">&quot;Carol&quot;</span><span class="p">,</span> <span class="mi">42</span><span class="p">)</span>
+<span class="n">store</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span><span class="n">alice</span><span class="p">,</span> <span class="s">&quot;LIKES&quot;</span><span class="p">,</span> <span class="n">bob</span><span class="p">)</span>     <span class="c"># these relationships are not saved</span>
+<span class="n">store</span><span class="o">.</span><span class="n">relate</span><span class="p">(</span><span class="n">alice</span><span class="p">,</span> <span class="s">&quot;LIKES&quot;</span><span class="p">,</span> <span class="n">carol</span><span class="p">)</span>   <span class="c"># until `alice` is saved</span>
+<span class="n">store</span><span class="o">.</span><span class="n">save</span><span class="p">(</span><span class="n">alice</span><span class="p">)</span>
+
+<span class="n">friends</span> <span class="o">=</span> <span class="n">store</span><span class="o">.</span><span class="n">load_related</span><span class="p">(</span><span class="n">alice</span><span class="p">,</span> <span class="s">&quot;LIKES&quot;</span><span class="p">,</span> <span class="n">Person</span><span class="p">)</span>
+<span class="k">print</span><span class="p">(</span><span class="s">&quot;Alice likes {0}&quot;</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="s">&quot; and &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">f</span><span class="p">)</span> <span class="k">for</span> <span class="n">f</span> <span class="ow">in</span> <span class="n">friends</span><span class="p">)))</span>
+</pre></div>
+</div>
+<dl class="exception">
+<dt id="py2neo.ogm.NotSaved">
+<em class="property">exception </em><tt class="descname">NotSaved</tt><a class="reference internal" href="../_modules/py2neo/ogm/#NotSaved"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.ogm.NotSaved" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.ValueError</span></tt></p>
+<p>Raised when an object has not been saved but a bound node is required.</p>
+</dd></dl>
+
+<dl class="class">
+<dt id="py2neo.ogm.Store">
+<em class="property">class </em><tt class="descname">Store</tt><big>(</big><em>graph_db</em><big>)</big><a class="reference internal" href="../_modules/py2neo/ogm/#Store"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.ogm.Store" title="Permalink to this definition">¶</a></dt>
+<dd><p>Bases: <tt class="xref py py-class docutils literal"><span class="pre">builtins.object</span></tt></p>
+<dl class="method">
+<dt id="py2neo.ogm.Store.delete">
+<tt class="descname">delete</tt><big>(</big><em>subj</em><big>)</big><a class="reference internal" href="../_modules/py2neo/ogm/#Store.delete"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.ogm.Store.delete" title="Permalink to this definition">¶</a></dt>
+<dd><p>Delete a saved object node from the database as well as all
+incoming and outgoing relationships.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subj</strong> &#8211; the object to delete from the database</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Raises NotSaved:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body">if <cite>subj</cite> is not linked to a database node</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="py2neo.ogm.Store.is_saved">
+<tt class="descname">is_saved</tt><big>(</big><em>subj</em><big>)</big><a class="reference internal" href="../_modules/py2neo/ogm/#Store.is_saved"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.ogm.Store.is_saved" title="Permalink to this definition">¶</a></dt>
+<dd><p>Return <tt class="xref py py-const docutils literal"><span class="pre">True</span></tt> if the object <cite>subj</cite> has been saved to
+the database, <tt class="xref py py-const docutils literal"><span class="pre">False</span></tt> otherwise.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subj</strong> &#8211; the object to test</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="py2neo.ogm.Store.load">
+<tt class="descname">load</tt><big>(</big><em>cls</em>, <em>node</em><big>)</big><a class="reference internal" href="../_modules/py2neo/ogm/#Store.load"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.ogm.Store.load" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load and return an object of type <cite>cls</cite> from database node <cite>node</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>cls</strong> &#8211; the class of the object to be returned</li>
+<li><strong>node</strong> &#8211; the node from which to load object data</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a <cite>cls</cite> instance</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="py2neo.ogm.Store.load_indexed">
+<tt class="descname">load_indexed</tt><big>(</big><em>index_name</em>, <em>key</em>, <em>value</em>, <em>cls</em><big>)</big><a class="reference internal" href="../_modules/py2neo/ogm/#Store.load_indexed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.ogm.Store.load_indexed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load zero or more indexed nodes from the database into a list of
+objects.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>index_name</strong> &#8211; the node index name</li>
+<li><strong>key</strong> &#8211; the index key</li>
+<li><strong>value</strong> &#8211; the index value</li>
+<li><strong>cls</strong> &#8211; the class of the object to be returned</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">a list of <cite>cls</cite> instances</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="py2neo.ogm.Store.load_related">
+<tt class="descname">load_related</tt><big>(</big><em>subj</em>, <em>rel_type</em>, <em>cls</em><big>)</big><a class="reference internal" href="../_modules/py2neo/ogm/#Store.load_related"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.ogm.Store.load_related" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load all nodes related to <cite>subj</cite> by a relationship of type
+<cite>rel_type</cite> into objects of type <cite>cls</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>subj</strong> &#8211; the object bound to the start of the relationship</li>
+<li><strong>rel_type</strong> &#8211; the relationship type</li>
+<li><strong>cls</strong> &#8211; the class to load all related objects into</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">list of <cite>cls</cite> instances</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="py2neo.ogm.Store.load_unique">
+<tt class="descname">load_unique</tt><big>(</big><em>index_name</em>, <em>key</em>, <em>value</em>, <em>cls</em><big>)</big><a class="reference internal" href="../_modules/py2neo/ogm/#Store.load_unique"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.ogm.Store.load_unique" title="Permalink to this definition">¶</a></dt>
+<dd><p>Load a uniquely indexed node from the database into an object.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first simple">
+<li><strong>index_name</strong> &#8211; the node index name</li>
+<li><strong>key</strong> &#8211; the index key</li>
+<li><strong>value</strong> &#8211; the index value</li>
+<li><strong>cls</strong> &#8211; the class of the object to be returned</li>
+</ul>
+</td>
+</tr>
+<tr class="field-even field"><th class="field-name">Returns:</th><td class="field-body"><p class="first last">as instance of <cite>cls</cite> containing the loaded data</p>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="py2neo.ogm.Store.relate">
+<tt class="descname">relate</tt><big>(</big><em>subj</em>, <em>rel_type</em>, <em>obj</em>, <em>properties=None</em><big>)</big><a class="reference internal" href="../_modules/py2neo/ogm/#Store.relate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.ogm.Store.relate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Define a relationship between <cite>subj</cite> and <cite>obj</cite> of type <cite>rel_type</cite>.
+This is a local operation only: nothing is saved to the database until
+a save method is called. Relationship properties may optionally be
+specified.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>subj</strong> &#8211; the object bound to the start of the relationship</li>
+<li><strong>rel_type</strong> &#8211; the relationship type</li>
+<li><strong>obj</strong> &#8211; the object bound to the end of the relationship</li>
+<li><strong>properties</strong> &#8211; properties attached to the relationship (optional)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="py2neo.ogm.Store.reload">
+<tt class="descname">reload</tt><big>(</big><em>subj</em><big>)</big><a class="reference internal" href="../_modules/py2neo/ogm/#Store.reload"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.ogm.Store.reload" title="Permalink to this definition">¶</a></dt>
+<dd><p>Reload properties and relationships from a database node into
+<cite>subj</cite>.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><strong>subj</strong> &#8211; the object to reload</td>
+</tr>
+<tr class="field-even field"><th class="field-name" colspan="2">Raises NotSaved:</th></tr>
+<tr class="field-even field"><td>&nbsp;</td><td class="field-body">if <cite>subj</cite> is not linked to a database node</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="py2neo.ogm.Store.save">
+<tt class="descname">save</tt><big>(</big><em>subj</em>, <em>node=None</em><big>)</big><a class="reference internal" href="../_modules/py2neo/ogm/#Store.save"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.ogm.Store.save" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save an object to a database node.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>subj</strong> &#8211; the object to save</li>
+<li><strong>node</strong> &#8211; the database node to save to (if omitted, will re-save to
+same node as previous save)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="py2neo.ogm.Store.save_indexed">
+<tt class="descname">save_indexed</tt><big>(</big><em>index_name</em>, <em>key</em>, <em>value</em>, <em>*subj</em><big>)</big><a class="reference internal" href="../_modules/py2neo/ogm/#Store.save_indexed"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.ogm.Store.save_indexed" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save one or more objects to the database, indexed under the
+supplied criteria.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>index_name</strong> &#8211; the node index name</li>
+<li><strong>key</strong> &#8211; the index key</li>
+<li><strong>value</strong> &#8211; the index value</li>
+<li><strong>subj</strong> &#8211; one or more objects to save</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="py2neo.ogm.Store.save_unique">
+<tt class="descname">save_unique</tt><big>(</big><em>index_name</em>, <em>key</em>, <em>value</em>, <em>subj</em><big>)</big><a class="reference internal" href="../_modules/py2neo/ogm/#Store.save_unique"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.ogm.Store.save_unique" title="Permalink to this definition">¶</a></dt>
+<dd><p>Save an object to the database, uniquely indexed under the
+supplied criteria.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>index_name</strong> &#8211; the node index name</li>
+<li><strong>key</strong> &#8211; the index key</li>
+<li><strong>value</strong> &#8211; the index value</li>
+<li><strong>subj</strong> &#8211; the object to save</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+<dl class="method">
+<dt id="py2neo.ogm.Store.separate">
+<tt class="descname">separate</tt><big>(</big><em>subj</em>, <em>rel_type</em>, <em>obj=None</em><big>)</big><a class="reference internal" href="../_modules/py2neo/ogm/#Store.separate"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#py2neo.ogm.Store.separate" title="Permalink to this definition">¶</a></dt>
+<dd><p>Remove any relationship definitions which match the criteria
+specified. This is a local operation only: nothing is saved to the
+database until a save method is called. If no object is specified, all
+relationships of type <cite>rel_type</cite> are removed.</p>
+<table class="docutils field-list" frame="void" rules="none">
+<col class="field-name" />
+<col class="field-body" />
+<tbody valign="top">
+<tr class="field-odd field"><th class="field-name">Parameters:</th><td class="field-body"><ul class="first last simple">
+<li><strong>subj</strong> &#8211; the object bound to the start of the relationship</li>
+<li><strong>rel_type</strong> &#8211; the relationship type</li>
+<li><strong>obj</strong> &#8211; the object bound to the end of the relationship (optional)</li>
+</ul>
+</td>
+</tr>
+</tbody>
+</table>
+</dd></dl>
+
+</dd></dl>
+
 </div>
 
 
