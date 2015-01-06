@@ -1,7 +1,8 @@
 
 /* Root element */
 html {
-	background-color: #F4F4F0;
+    background-color: #F4F4F0;
+/*    background-color: #FFF8E7;*/
     font-size: 15px;
     line-height: 160%;
     overflow-y: scroll;

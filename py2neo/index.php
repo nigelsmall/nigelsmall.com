@@ -1,3 +1,3 @@
 <?php
-header('Location: 1.6')
+header('Location: 2.0')
 ?>

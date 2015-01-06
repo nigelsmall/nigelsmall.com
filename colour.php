@@ -35,7 +35,7 @@
     vertical-align: middle;
     font-family: serif;
     font-style: italic;
-    font-size: 14px;
+    font-size: 12px;
     font-weight: bold;
     cursor: pointer;
 }
@@ -146,7 +146,7 @@ drawPalette(subtractive, [
     "#004F35", ["","#005756"], "#00435E", ["","#000A61"], "#320061", ["","#630056"]
 ], 100, 48);
 drawPalette(subtractive, [
-    ["red","#C40032"], ["scarlet","#D40700"], ["orange","#E34400"], ["amber","#F08800"], ["yellow","#FFD300"], ["lime","#34CF00"],
+    ["red","#C40032"], ["vermillion","#D40700"], ["orange","#E34400"], ["amber","#F08800"], ["yellow","#FFD300"], ["chartreuse","#34CF00"],
     ["green","#009F6B"], ["cyan","#00ADAB"], ["blue","#0087BD"], ["indigo","#0013BF"], ["violet","#6400C2"], ["magenta","#C400AA"]
 ], 166, 80);
 drawPalette(subtractive, [
