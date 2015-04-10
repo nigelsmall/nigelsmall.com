@@ -13,11 +13,11 @@
 
 <h1>Neo4j Index Confusion</h1>
 
-<p>Since the release of Neo4j 2.0 and the introduction of schema indexes, I have had to answer an increasing number of questions arising from confusion between the two types of index now available: <a href="http://docs.neo4j.org/chunked/stable/graphdb-neo4j-schema.html">schema indexes</a> and <a href="http://docs.neo4j.org/chunked/stable/indexing.html">legacy indexes</a>. For clarification, <strong>these are two completely different concepts and are not interchangable or compatible in any way</strong>. It is important, therefore, to make sure you know which you are using.</p>
+<p>Since the release of Neo4j 2.0 and the introduction of schema indexes, I have had to answer an increasing number of questions arising from confusion between the two types of index now available: <a href="http://neo4j.com/docs/stable/query-schema-index.html">schema indexes</a> and <a href="http://neo4j.com/docs/stable/indexing.html">legacy indexes</a>. For clarification, <strong>these are two completely different concepts and are not interchangable or compatible in any way</strong>. It is important, therefore, to make sure you know which you are using.</p>
 
 <h2>Legacy Indexes</h2>
 
-<p>Prior to the release of Neo4j 2.0, legacy indexes were just called indexes. These were powered by <a href="http://lucene.apache.org/">Lucene</a> outside the graph and allowed nodes and relationships to be indexed under a <em>key:value</em> pair. From the perspective of the REST interface, <a href="http://docs.neo4j.org/chunked/stable/rest-api-indexes.html">most things called "index"</a> will still refer to these legacy indexes. Specifically with py2neo, <a href="http://nigelsmall.com/py2neo/indexes/">any operation that contains the word "index"</a> that is not part of the "schema" object, will refer to legacy indexes.</p>
+<p>Prior to the release of Neo4j 2.0, legacy indexes were just called indexes. These were powered by <a href="http://lucene.apache.org/">Lucene</a> outside the graph and allowed nodes and relationships to be indexed under a <em>key:value</em> pair. From the perspective of the REST interface, <a href="http://neo4j.com/docs/stable/rest-api-indexes.html">most things called "index"</a> will still refer to these legacy indexes.</p>
 
 <p>Legacy indexes also provide full text search capabilities. This is something not (yet) provided by schema indexes so is one of the few reasons for sticking with legacy indexes in Neo4j 2.0<a href="#thanks-luanne">*</a>.</small></p>
 
@@ -25,7 +25,7 @@
 
 <h2>Schema Indexes</h2>
 
-<p>Neo4j 2.0 introduced <a href="http://docs.neo4j.org/chunked/stable/graphdb-neo4j-labels.html">labels</a>. Labels can be used for path matching and - along with properties - are used as the basis for <a href="http://docs.neo4j.org/chunked/stable/graphdb-neo4j-schema.html#graphdb-neo4j-schema-indexes">schema indexes</a> and <a href="http://docs.neo4j.org/chunked/stable/graphdb-neo4j-schema.html#graphdb-neo4j-schema-constraints">uniqueness constraints</a>. <strong>Schema indexes can speed up queries</strong>, unlike legacy indexes.</p>
+<p>Neo4j 2.0 introduced the <a href="http://neo4j.com/docs/stable/cypher-schema.html">schema</a> which was built around the concept of <em>node labels</em>. Labels can be used for path matching and - along with properties - are used as the basis for <a href="http://neo4j.com/docs/stable/query-schema-index.html">schema indexes</a> and <a href="http://neo4j.com/docs/stable/query-constraints.html">constraints</a>. <strong>Schema indexes can speed up queries</strong>, unlike legacy indexes.</p>
 
 <p>Note: <strong>Only schema indexes are aware of labels; legacy indexes are completely and utterly unaware of labels.</strong></p>
 
